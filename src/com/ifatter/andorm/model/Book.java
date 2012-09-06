@@ -53,10 +53,4 @@ public class Book {
         this.iconUrl = iconUrl;
     }
 
-    public String getIconFile() {
-        if (iconUrl == null)
-            setIconUrl(url);
-        return iconUrl == null ? null : this.iconUrl;
-    }
-
 }
