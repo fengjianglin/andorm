@@ -35,7 +35,7 @@ public class DaoTransactionFactory {
         T instance = null;
         try {
             @SuppressWarnings("unchecked")
-            Constructor<T>[] constructors = daoImplClass.getConstructors();
+            Constructor<T>[] constructors = (Constructor<T>[])daoImplClass.getConstructors();
             for (Constructor<T> c : constructors) {
                 try {
                     instance = c.newInstance(constructorParams);

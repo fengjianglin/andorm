@@ -46,10 +46,10 @@ public abstract class DaoSupport<T> {
         Class<?> claz = getClass();
         if (claz.isAnnotationPresent(Database.class)) {
             Database db = claz.getAnnotation(Database.class);
-            Class<? extends DBSupport> c = db.database();
+            Class<? extends Config> c = db.database();
             try {
-                Constructor<? extends DBSupport> con = c.getConstructor();
-                DBSupport support = con.newInstance();
+                Constructor<? extends Config> con = c.getConstructor();
+                Config support = con.newInstance();
                 mDBHelper = new ORMSQLiteHelper(context, support.getName(), support.getVersion(),
                         support.getClasses());
                 mDBHelper.setDabaseListener(mListener);

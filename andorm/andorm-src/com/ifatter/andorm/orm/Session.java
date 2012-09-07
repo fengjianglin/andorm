@@ -16,16 +16,13 @@
 
 package com.ifatter.andorm.orm;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+/**
+ * @author ifatter
+ */
+public interface Session {
+    void open();
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target({
-    java.lang.annotation.ElementType.TYPE
-})
-public @interface Database {
+    boolean isOpen();
 
-    public Class<? extends Config> database();
-
+    void close();
 }

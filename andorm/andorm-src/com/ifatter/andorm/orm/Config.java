@@ -18,7 +18,26 @@ package com.ifatter.andorm.orm;
 
 import android.text.TextUtils;
 
-public abstract class DBSupport {
+import java.util.ResourceBundle;
+
+public abstract class Config {
+
+    public static Config get(String cfgPath) {
+        final ResourceBundle bundle = ResourceBundle.getBundle(cfgPath);
+        return new Config() {
+            public String configName() {
+                return bundle.getString("name");
+            }
+
+            public int configVersion() {
+                return 0;
+            }
+
+            public Class<?>[] configBeanClasses() {
+                return null;
+            }
+        };
+    }
 
     final String getName() {
         String name = configName();

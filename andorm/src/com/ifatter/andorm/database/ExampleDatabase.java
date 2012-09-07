@@ -2,9 +2,9 @@
 package com.ifatter.andorm.database;
 
 import com.ifatter.andorm.model.Book;
-import com.ifatter.andorm.orm.DBSupport;
+import com.ifatter.andorm.orm.Config;
 
-public class ExampleDatabase extends DBSupport {
+public class ExampleDatabase extends Config {
 
     @Override
     public String configName() {
