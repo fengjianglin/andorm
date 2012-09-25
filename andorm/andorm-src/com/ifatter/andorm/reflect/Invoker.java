@@ -17,8 +17,8 @@ public final class Invoker {
     }
 
     public Object invoke(Object... params) {
-        method.setAccessible(true);
         try {
+            method.setAccessible(true);
             return method.invoke(receiver, params);
         } catch (InvocationTargetException e) {
             throw new AndormException(e.getMessage());

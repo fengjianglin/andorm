@@ -18,8 +18,6 @@ package com.ifatter.andorm.orm;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-
 import java.lang.reflect.Field;
 import java.sql.Blob;
 import java.util.ArrayList;
