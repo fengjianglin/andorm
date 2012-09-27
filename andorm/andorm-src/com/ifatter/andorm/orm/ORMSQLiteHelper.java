@@ -16,8 +16,8 @@
 
 package com.ifatter.andorm.orm;
 
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+
 import java.lang.reflect.Field;
 import java.sql.Blob;
 import java.util.ArrayList;
@@ -32,45 +32,14 @@ final public class ORMSQLiteHelper extends SQLiteOpenHelper {
 
     private Class<?>[] modelClasses;
 
-    private DatabaseListener databaseListener;
-
-    public ORMSQLiteHelper(Context context, String databaseName, int databaseVersion,
-            Class<?>[] modelClasses) {
-        this(context, databaseName, null, databaseVersion, modelClasses);
-    }
-
-    public ORMSQLiteHelper(Context context, String databaseName,
-            SQLiteDatabase.CursorFactory factory, int databaseVersion, Class<?>[] modelClasses) {
-        super(context, databaseName, factory, databaseVersion);
+    public ORMSQLiteHelper(String dbPath, Class<?>[] modelClasses) {
+        super(dbPath);
         this.modelClasses = modelClasses;
-    }
-
-    public void setDabaseListener(DatabaseListener listener) {
-        this.databaseListener = listener;
     }
 
     public void onCreate(SQLiteDatabase db) {
         for (Class<?> clazz : this.modelClasses) {
             createTable(db, clazz);
-        }
-        if (databaseListener != null) {
-            if (!isAvailableDB()) {
-                sqliteDatebases.add(0, db);
-            }
-            databaseListener.onCreate();
-        }
-    }
-
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        for (Class<?> clazz : this.modelClasses) {
-            dropTable(db, clazz);
-        }
-        onCreate(db);
-        if (databaseListener != null) {
-            if (!isAvailableDB()) {
-                sqliteDatebases.add(0, db);
-            }
-            databaseListener.onUpgrade(oldVersion, newVersion);
         }
     }
 
@@ -152,7 +121,7 @@ final public class ORMSQLiteHelper extends SQLiteOpenHelper {
         db.execSQL(sql);
     }
 
-    private void dropTable(SQLiteDatabase db, Class<?> clazz) {
+    public void dropTable(SQLiteDatabase db, Class<?> clazz) {
         String tableName = "";
         if (clazz.isAnnotationPresent(Table.class)) {
             Table table = (Table)clazz.getAnnotation(Table.class);
@@ -208,13 +177,6 @@ final public class ORMSQLiteHelper extends SQLiteOpenHelper {
     @Deprecated
     public enum ColumnType {
         TEXT, INTEGER, BIGINT, FLOAT, INT, DOUBLE, BLOB
-    }
-
-    public static interface DatabaseListener {
-
-        public void onCreate();
-
-        public void onUpgrade(int oldVersion, int newVersion);
     }
 
 }

@@ -22,15 +22,14 @@ import java.util.ResourceBundle;
 
 public abstract class Config {
 
+    /**
+     * cfgPath = "com/ifatter/andorm/database/config";
+     */
     public static Config get(String cfgPath) {
         final ResourceBundle bundle = ResourceBundle.getBundle(cfgPath);
         return new Config() {
             public String configName() {
                 return bundle.getString("name");
-            }
-
-            public int configVersion() {
-                return 0;
             }
 
             public Class<?>[] configBeanClasses() {
@@ -48,15 +47,6 @@ public abstract class Config {
         }
     }
 
-    final int getVersion() {
-        int version = configVersion();
-        if (version <= 0) {
-            return 1;
-        } else {
-            return version;
-        }
-    }
-
     final Class<?>[] getClasses() {
         Class<?>[] classes = configBeanClasses();
         if (classes == null) {
@@ -67,8 +57,6 @@ public abstract class Config {
     }
 
     public abstract String configName();
-
-    public abstract int configVersion();
 
     public abstract Class<?>[] configBeanClasses();
 }

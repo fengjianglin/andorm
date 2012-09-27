@@ -12,11 +12,6 @@ public class ExampleDatabase extends Config {
     }
 
     @Override
-    public int configVersion() {
-        return 1;
-    }
-
-    @Override
     public Class<?>[] configBeanClasses() {
         return new Class<?>[] {
             Book.class

@@ -19,6 +19,7 @@ package com.ifatter.andorm.orm;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -31,16 +32,6 @@ public abstract class DaoSupport<T> {
 
     private ORMSQLiteHelper mDBHelper;
 
-    private ORMSQLiteHelper.DatabaseListener mListener = new ORMSQLiteHelper.DatabaseListener() {
-        public void onCreate() {
-            DaoSupport.this.onCreate();
-        }
-
-        public void onUpgrade(int oldVersion, int newVersion) {
-            DaoSupport.this.onUpgrade(oldVersion, newVersion);
-        }
-    };
-
     public DaoSupport(Context context) {
 
         Class<?> claz = getClass();
@@ -50,9 +41,13 @@ public abstract class DaoSupport<T> {
             try {
                 Constructor<? extends Config> con = c.getConstructor();
                 Config support = con.newInstance();
-                mDBHelper = new ORMSQLiteHelper(context, support.getName(), support.getVersion(),
-                        support.getClasses());
-                mDBHelper.setDabaseListener(mListener);
+                String dirPath = context.getFilesDir().getAbsolutePath() + "/database/";
+                File dir = new File(dirPath);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+                String path = dirPath + support.getName();
+                mDBHelper = new ORMSQLiteHelper(path, support.getClasses());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -104,14 +99,6 @@ public abstract class DaoSupport<T> {
             mDBHelper.close();
         } catch (Exception e) {
         }
-    }
-
-    public void onCreate() {
-
-    }
-
-    public void onUpgrade(int oldVersion, int newVersion) {
-
     }
 
 }

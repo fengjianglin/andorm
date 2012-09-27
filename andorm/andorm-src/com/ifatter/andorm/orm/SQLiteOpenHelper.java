@@ -4,19 +4,14 @@ package com.ifatter.andorm.orm;
 import com.ifatter.andorm.reflect.Invoker;
 import com.ifatter.andorm.reflect.Reflactor;
 
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
 
+/**
+ * @see android.database.sqlite.SQLiteOpenHelper
+ */
 public abstract class SQLiteOpenHelper {
 
-    private final Context mContext;
-
     private final String mSqlitePath;
-
-    private final CursorFactory mFactory;
-
-    private final int mNewVersion;
 
     private SQLiteDatabase mDatabase = null;
 
@@ -24,14 +19,11 @@ public abstract class SQLiteOpenHelper {
 
     private Reflactor mDBReflactor = Reflactor.in(SQLiteDatabase.class);
 
-    public SQLiteOpenHelper(Context context, String name, CursorFactory factory, int version) {
-        if (version < 1)
-            throw new IllegalArgumentException("Version must be >= 1, was " + version);
-
-        mContext = context;
-        mSqlitePath = name;
-        mFactory = factory;
-        mNewVersion = version;
+    public SQLiteOpenHelper(String sqlitePath) {
+        if (sqlitePath == null) {
+            throw new IllegalArgumentException("SqlitePath can't be null");
+        }
+        mSqlitePath = sqlitePath;
     }
 
     public synchronized SQLiteDatabase getWritableDatabase() {
@@ -51,29 +43,17 @@ public abstract class SQLiteOpenHelper {
         }
         try {
             mIsInitializing = true;
-            if (mSqlitePath == null) {
-                db = SQLiteDatabase.create(null);
-            } else {
-                db = mContext.openOrCreateDatabase(mSqlitePath, 0, mFactory);
-            }
-
+            db = SQLiteDatabase.openOrCreateDatabase(mSqlitePath, null);
             int version = db.getVersion();
-            if (version != mNewVersion) {
-                db.beginTransaction();
-                try {
-                    if (version == 0) {
-                        onCreate(db);
-                    } else {
-                        onUpgrade(db, version, mNewVersion);
-                    }
-                    db.setVersion(mNewVersion);
-                    db.setTransactionSuccessful();
-                } finally {
-                    db.endTransaction();
+            db.beginTransaction();
+            try {
+                if (version == 0) {
+                    onCreate(db);
                 }
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
             }
-
-            onOpen(db);
             success = true;
             return db;
         } finally {
@@ -101,8 +81,9 @@ public abstract class SQLiteOpenHelper {
     }
 
     public synchronized void close() {
-        if (mIsInitializing)
+        if (mIsInitializing) {
             throw new IllegalStateException("Closed during initialization");
+        }
 
         if (mDatabase != null && mDatabase.isOpen()) {
             mDatabase.close();
@@ -112,8 +93,4 @@ public abstract class SQLiteOpenHelper {
 
     public abstract void onCreate(SQLiteDatabase db);
 
-    public abstract void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion);
-
-    public void onOpen(SQLiteDatabase db) {
-    }
 }
