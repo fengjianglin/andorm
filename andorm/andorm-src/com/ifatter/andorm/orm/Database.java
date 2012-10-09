@@ -28,4 +28,5 @@ public @interface Database {
 
     public Class<? extends Config> database();
 
+    public String cfgPath();
 }

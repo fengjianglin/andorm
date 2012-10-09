@@ -33,6 +33,20 @@ public abstract class Config {
             }
 
             public Class<?>[] configBeanClasses() {
+                String strs = bundle.getString("classes");
+                String[] strings = strs.split(",");
+                if (strings != null) {
+                    int size = strings.length;
+                    Class<?>[] classes = new Class[size];
+                    for (int i = 0; i < size; i++) {
+                        try {
+                            classes[i] = Class.forName(strings[i].trim());
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    return classes;
+                }
                 return null;
             }
         };

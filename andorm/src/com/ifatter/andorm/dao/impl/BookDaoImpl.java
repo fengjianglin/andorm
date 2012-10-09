@@ -11,7 +11,7 @@ import android.content.Context;
 
 import java.util.List;
 
-@Database(database = ExampleDatabase.class)
+@Database(database = ExampleDatabase.class, cfgPath = "com/ifatter/andorm/database/config")
 public class BookDaoImpl extends DaoSupport<Book> implements BookDao {
 
     public BookDaoImpl(Context context) {

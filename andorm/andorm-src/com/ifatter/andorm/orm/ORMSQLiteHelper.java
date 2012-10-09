@@ -26,7 +26,6 @@ import java.util.List;
 
 final public class ORMSQLiteHelper extends SQLiteOpenHelper {
 
-    // TODO 持久化DB需要改进
     private static final List<SQLiteDatabase> sqliteDatebases = Collections
             .synchronizedList(new ArrayList<SQLiteDatabase>());
 
@@ -48,7 +47,7 @@ final public class ORMSQLiteHelper extends SQLiteOpenHelper {
             return sqliteDatebases.get(0);
         }
         sqliteDatebases.clear();
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = getDatabase();
         sqliteDatebases.add(0, db);
         return db;
     }
@@ -172,11 +171,6 @@ final public class ORMSQLiteHelper extends SQLiteOpenHelper {
             sqliteDatebases.clear();
         } catch (Exception e) {
         }
-    }
-
-    @Deprecated
-    public enum ColumnType {
-        TEXT, INTEGER, BIGINT, FLOAT, INT, DOUBLE, BLOB
     }
 
 }

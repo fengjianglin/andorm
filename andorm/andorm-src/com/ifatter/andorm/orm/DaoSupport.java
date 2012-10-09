@@ -66,7 +66,6 @@ public abstract class DaoSupport<T> {
                             .getSqLiteDatabase();
                     db.beginTransaction();
                     try {
-                        System.out.println("--------DaoSupport");
                         Object ret = method.invoke(DaoSupport.this, args);
                         db.setTransactionSuccessful();
                         return ret;

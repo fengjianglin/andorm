@@ -26,13 +26,13 @@ public abstract class SQLiteOpenHelper {
         mSqlitePath = sqlitePath;
     }
 
-    public synchronized SQLiteDatabase getWritableDatabase() {
+    public final synchronized SQLiteDatabase getDatabase() {
         if (mDatabase != null && mDatabase.isOpen() && !mDatabase.isReadOnly()) {
             return mDatabase; // The database is already open for business
         }
 
         if (mIsInitializing) {
-            throw new IllegalStateException("getWritableDatabase called recursively");
+            throw new IllegalStateException("getSqliteDatabase called recursively");
         }
 
         boolean success = false;
@@ -47,8 +47,9 @@ public abstract class SQLiteOpenHelper {
             int version = db.getVersion();
             db.beginTransaction();
             try {
-                if (version == 0) {
+                if (version != 1) {
                     onCreate(db);
+                    db.setVersion(1);
                 }
                 db.setTransactionSuccessful();
             } finally {
