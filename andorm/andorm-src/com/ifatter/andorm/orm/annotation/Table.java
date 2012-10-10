@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ifatter.andorm.orm;
+package com.ifatter.andorm.orm.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

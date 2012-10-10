@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-package com.ifatter.andorm.orm;
+package com.ifatter.andorm.orm.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.ifatter.andorm.orm.DBConfig;
+
 @Retention(RetentionPolicy.RUNTIME)
 @Target({
-    java.lang.annotation.ElementType.FIELD
+    java.lang.annotation.ElementType.TYPE
 })
-public @interface Id {
+public @interface Database {
+
+    public Class<? extends DBConfig> database() default DEFAULT.class;
+
+    public String cfgPath() default "";
+
+    static abstract class DEFAULT extends DBConfig {
+    }
 }
