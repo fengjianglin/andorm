@@ -39,23 +39,6 @@ public abstract class DBConfig {
                 }
             }
 
-            public Class<?>[] configBeanClasses() {
-                String strs = bundle.getString("classes");
-                String[] strings = strs.split(",");
-                if (strings != null) {
-                    int size = strings.length;
-                    Class<?>[] classes = new Class[size];
-                    for (int i = 0; i < size; i++) {
-                        try {
-                            classes[i] = Class.forName(strings[i].trim());
-                        } catch (ClassNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    return classes;
-                }
-                return null;
-            }
         };
     }
 
@@ -68,16 +51,6 @@ public abstract class DBConfig {
         }
     }
 
-    final Class<?>[] getClasses() {
-        Class<?>[] classes = configBeanClasses();
-        if (classes == null) {
-            return new Class<?>[] {};
-        } else {
-            return classes;
-        }
-    }
-
     public abstract String configName();
 
-    public abstract Class<?>[] configBeanClasses();
 }

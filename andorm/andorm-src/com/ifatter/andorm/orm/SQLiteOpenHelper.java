@@ -44,17 +44,6 @@ public abstract class SQLiteOpenHelper {
         try {
             mIsInitializing = true;
             db = SQLiteDatabase.openOrCreateDatabase(mSqlitePath, null);
-            int version = db.getVersion();
-            db.beginTransaction();
-            try {
-                if (version != 1) {
-                    onCreate(db);
-                    db.setVersion(1);
-                }
-                db.setTransactionSuccessful();
-            } finally {
-                db.endTransaction();
-            }
             success = true;
             return db;
         } finally {
@@ -91,7 +80,5 @@ public abstract class SQLiteOpenHelper {
             mDatabase = null;
         }
     }
-
-    public abstract void onCreate(SQLiteDatabase db);
 
 }

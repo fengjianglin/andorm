@@ -30,11 +30,11 @@ public class DaoTransactionFactory {
      * @param constructorParams dao实现类构造函数所需要的参数
      * @return *动态代理实现，需要向上转型成接口
      */
-    public static <T extends DaoSupport<?>> Object createDaoTransaction(Class<T> daoImplClass,
+    @SuppressWarnings("unchecked")
+    public static <T extends DaoSupport<?>> T createDaoTransaction(Class<T> daoImplClass,
             Object... constructorParams) {
         T instance = null;
         try {
-            @SuppressWarnings("unchecked")
             Constructor<T>[] constructors = (Constructor<T>[])daoImplClass.getConstructors();
             for (Constructor<T> c : constructors) {
                 try {
@@ -51,7 +51,7 @@ public class DaoTransactionFactory {
             ClassLoader classLoader = instance.getClass().getClassLoader();
             Class<?>[] interfaces = instance.getClass().getInterfaces();
             Object proxy = Proxy.newProxyInstance(classLoader, interfaces, handler);
-            return proxy;
+            return (T)proxy;
         }
         return null;
     }

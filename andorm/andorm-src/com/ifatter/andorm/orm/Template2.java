@@ -27,11 +27,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Template<T> implements Operations {
+public class Template2 implements Operations {
 
     private final ORMSQLiteHelper mDBHelper;
 
-    private final Class<T> mClazz;
+    private final Class<?> mClazz;
 
     private Field[] mFields;
 
@@ -39,7 +39,7 @@ public class Template<T> implements Operations {
 
     private String mIdColumn;
 
-    protected Template(ORMSQLiteHelper dbHelper, Class<T> clazz) {
+    protected <T> Template2(ORMSQLiteHelper dbHelper, Class<T> clazz) {
 
         this.mDBHelper = dbHelper;
         this.mClazz = clazz;
@@ -114,7 +114,7 @@ public class Template<T> implements Operations {
         return false;
     }
 
-    public T get(int id) {
+    public <T> T get(int id) {
         String selection = this.mIdColumn + " = ?";
         String[] selectionArgs = {
             Integer.toString(id)
@@ -126,7 +126,7 @@ public class Template<T> implements Operations {
         return null;
     }
 
-    public long insert(T entity) {
+    public <T> long insert(T entity) {
         SQLiteDatabase db = null;
         try {
             db = this.mDBHelper.getSqLiteDatabase();
@@ -172,7 +172,7 @@ public class Template<T> implements Operations {
         }
     }
 
-    public int update(T entity) {
+    public <T> int update(T entity) {
         int ret = 0;
         SQLiteDatabase db = null;
         try {
@@ -199,7 +199,7 @@ public class Template<T> implements Operations {
         return ret;
     }
 
-    public List<T> rawQuery(String sql, String[] selectionArgs) {
+    public <T> List<T> rawQuery(String sql, String[] selectionArgs) {
 
         List<T> list = new ArrayList<T>();
         SQLiteDatabase db = null;
@@ -222,12 +222,12 @@ public class Template<T> implements Operations {
         return list;
     }
 
-    public List<T> find() {
+    public <T> List<T> find() {
         return find(null, null, null, null, null, null, null);
     }
 
-    public List<T> find(String[] columns, String selection, String[] selectionArgs, String groupBy,
-            String having, String orderBy, String limit) {
+    public <T> List<T> find(String[] columns, String selection, String[] selectionArgs,
+            String groupBy, String having, String orderBy, String limit) {
 
         List<T> list = new ArrayList<T>();
         SQLiteDatabase db = null;
@@ -298,9 +298,10 @@ public class Template<T> implements Operations {
         }
     }
 
-    private void getListFromCursor(List<T> list, Cursor cursor) throws IllegalAccessException,
+    private <T> void getListFromCursor(List<T> list, Cursor cursor) throws IllegalAccessException,
             InstantiationException {
         while (cursor.moveToNext()) {
+            @SuppressWarnings("unchecked")
             T entity = (T)this.mClazz.newInstance();
 
             for (Field field : this.mFields) {
@@ -342,7 +343,7 @@ public class Template<T> implements Operations {
         }
     }
 
-    private void setContentValues(T entity, ContentValues cv, String type)
+    private <T> void setContentValues(T entity, ContentValues cv, String type)
             throws IllegalAccessException {
 
         for (Field field : this.mFields) {

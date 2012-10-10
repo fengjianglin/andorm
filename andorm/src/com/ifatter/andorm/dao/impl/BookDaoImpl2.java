@@ -3,24 +3,24 @@ package com.ifatter.andorm.dao.impl;
 
 import com.ifatter.andorm.dao.BookDao;
 import com.ifatter.andorm.model.Book;
-import com.ifatter.andorm.orm.DaoSupport;
+import com.ifatter.andorm.orm.DaoSupport2;
 
 import android.content.Context;
 
 import java.util.List;
 
-public class BookDaoImpl extends DaoSupport<Book> implements BookDao {
+public class BookDaoImpl2 extends DaoSupport2 implements BookDao {
 
-    public BookDaoImpl(Context context) {
+    public BookDaoImpl2(Context context) {
         super(context);
     }
 
     public List<Book> findAll() {
-        return getTemplate().find();
+        return getTemplate2().find();
     }
 
     public long insert(Book book) {
-        return getTemplate().insert(book);
+        return getTemplate2().insert(book);
     }
 
     public long insert(String title, String url, String icon_url) {

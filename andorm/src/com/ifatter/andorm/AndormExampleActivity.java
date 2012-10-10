@@ -18,13 +18,21 @@ public class AndormExampleActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        Book book = new Book();
-        book.setTitle("七彩人生");
-        book.setUrl("http://www.ifatter.com/andorm/");
-        book.setIconUrl("http://www.ifatter.com/andorm/icon.png");
+        bookDao = (BookDao)new BookDaoImpl(this).getDaoTransaction();
 
-        BookDao bookDao = new BookDaoImpl(this);
-        bookDao.insert(book);
+        Book book = new Book();
+        book.setTitle("PPP");
+        book.setUrl("http:///andorm/");
+        book.setIconUrl("http:///andorm/icon.png");
+        bookDao.insert2(book);
+
+        book = new Book();
+        book.setTitle("WWWW");
+        book.setUrl("http://www");
+        book.setIconUrl("http://www");
+        bookDao.insert2(book);
+
+        bookDao.testTransaction();
 
     }
 

@@ -25,17 +25,8 @@ final public class ORMSQLiteHelper extends SQLiteOpenHelper {
 
     private SQLiteDatabase sqliteDatebase;
 
-    private Class<?>[] modelClasses;
-
-    public ORMSQLiteHelper(String dbPath, Class<?>[] modelClasses) {
+    public ORMSQLiteHelper(String dbPath) {
         super(dbPath);
-        this.modelClasses = modelClasses;
-    }
-
-    public void onCreate(SQLiteDatabase db) {
-        for (Class<?> clazz : this.modelClasses) {
-            createTable(db, clazz);
-        }
     }
 
     synchronized SQLiteDatabase getSqLiteDatabase() {
@@ -57,7 +48,7 @@ final public class ORMSQLiteHelper extends SQLiteOpenHelper {
         return false;
     }
 
-    private void createTable(SQLiteDatabase db, Class<?> clazz) {
+    public void createTable(SQLiteDatabase db, Class<?> clazz) {
 
         String tableName = "";
         if (clazz.isAnnotationPresent(Table.class)) {

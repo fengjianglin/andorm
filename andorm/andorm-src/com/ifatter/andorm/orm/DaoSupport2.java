@@ -29,15 +29,13 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 
-public abstract class DaoSupport<T> {
-
-    private Template<T> mTemplate;
+public abstract class DaoSupport2 {
 
     private Template2 mTemplate2;
 
     private ORMSQLiteHelper mDBHelper;
 
-    public DaoSupport(Context context) {
+    public DaoSupport2(Context context) {
 
         boolean init = false;
 
@@ -88,35 +86,6 @@ public abstract class DaoSupport<T> {
         mDBHelper = new ORMSQLiteHelper(path);
     }
 
-    /**
-     * @return 动态代理实现，需要向上转型成接口
-     */
-    public Object getDaoTransaction() {
-
-        InvocationHandler invocationHandler = new InvocationHandler() {
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                if (method.isAnnotationPresent(Transaction.class)) {
-                    System.out.println("--------transation.begin");
-                    SQLiteDatabase db = getTemplate().getOrmsqLiteHelper().getSqLiteDatabase();
-                    db.beginTransaction();
-                    try {
-                        Object ret = method.invoke(DaoSupport.this, args);
-                        db.setTransactionSuccessful();
-                        return ret;
-                    } finally {
-                        db.endTransaction();
-                        System.out.println("--------transation.end");
-                    }
-                } else {
-                    return method.invoke(DaoSupport.this, args);
-                }
-            }
-        };
-        Object proxy = Proxy.newProxyInstance(DaoSupport.this.getClass().getClassLoader(),
-                DaoSupport.this.getClass().getInterfaces(), invocationHandler);
-        return proxy;
-    }
-
     public Object getDaoTransaction2() {
 
         InvocationHandler invocationHandler = new InvocationHandler() {
@@ -126,7 +95,7 @@ public abstract class DaoSupport<T> {
                     SQLiteDatabase db = getTemplate2().getOrmsqLiteHelper().getSqLiteDatabase();
                     db.beginTransaction();
                     try {
-                        Object ret = method.invoke(DaoSupport.this, args);
+                        Object ret = method.invoke(DaoSupport2.this, args);
                         db.setTransactionSuccessful();
                         return ret;
                     } finally {
@@ -134,28 +103,17 @@ public abstract class DaoSupport<T> {
                         System.out.println("--------transation.end");
                     }
                 } else {
-                    return method.invoke(DaoSupport.this, args);
+                    return method.invoke(DaoSupport2.this, args);
                 }
             }
         };
-        Object proxy = Proxy.newProxyInstance(DaoSupport.this.getClass().getClassLoader(),
-                DaoSupport.this.getClass().getInterfaces(), invocationHandler);
+        Object proxy = Proxy.newProxyInstance(DaoSupport2.this.getClass().getClassLoader(),
+                DaoSupport2.this.getClass().getInterfaces(), invocationHandler);
         return proxy;
     }
 
     @SuppressWarnings("unchecked")
-    protected final synchronized Template<T> getTemplate() {
-        if (mTemplate == null) {
-            Class<T> clazz = null;
-            ParameterizedType type = (ParameterizedType)getClass().getGenericSuperclass();
-            clazz = (Class<T>)(type.getActualTypeArguments()[0]);
-            mTemplate = new Template<T>(mDBHelper, clazz);
-        }
-        return mTemplate;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected final synchronized Template2 getTemplate2() {
+    protected final synchronized <T> Template2 getTemplate2() {
         if (mTemplate2 == null) {
             Class<T> clazz = null;
             ParameterizedType type = (ParameterizedType)getClass().getGenericSuperclass();
