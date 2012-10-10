@@ -4,7 +4,6 @@ package com.ifatter.andorm;
 import com.ifatter.andorm.dao.BookDao;
 import com.ifatter.andorm.dao.impl.BookDaoImpl;
 import com.ifatter.andorm.model.Book;
-import com.ifatter.andorm.orm.Config;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -27,11 +26,6 @@ public class AndormExampleActivity extends Activity {
         BookDao bookDao = new BookDaoImpl(this);
         bookDao.insert(book);
 
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
 }

@@ -20,14 +20,10 @@ import android.database.sqlite.SQLiteDatabase;
 
 import java.lang.reflect.Field;
 import java.sql.Blob;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 final public class ORMSQLiteHelper extends SQLiteOpenHelper {
 
-    private static final List<SQLiteDatabase> sqliteDatebases = Collections
-            .synchronizedList(new ArrayList<SQLiteDatabase>());
+    private SQLiteDatabase sqliteDatebase;
 
     private Class<?>[] modelClasses;
 
@@ -44,23 +40,18 @@ final public class ORMSQLiteHelper extends SQLiteOpenHelper {
 
     synchronized SQLiteDatabase getSqLiteDatabase() {
         if (isAvailableDB()) {
-            return sqliteDatebases.get(0);
+            return sqliteDatebase;
         }
-        sqliteDatebases.clear();
-        SQLiteDatabase db = getDatabase();
-        sqliteDatebases.add(0, db);
-        return db;
+        sqliteDatebase = getDatabase();
+        return sqliteDatebase;
     }
 
     synchronized boolean isAvailableDB() {
-        if (sqliteDatebases != null && sqliteDatebases.size() > 0) {
-            SQLiteDatabase db = sqliteDatebases.get(0);
-            if (db != null && db.isOpen()) {
-                if (db.isReadOnly()) {
-                    db.close();
-                } else {
-                    return true;
-                }
+        if (sqliteDatebase != null && sqliteDatebase.isOpen()) {
+            if (sqliteDatebase.isReadOnly()) {
+                sqliteDatebase.close();
+            } else {
+                return true;
             }
         }
         return false;
@@ -154,23 +145,6 @@ final public class ORMSQLiteHelper extends SQLiteOpenHelper {
         }
 
         return "TEXT";
-    }
-
-    public synchronized void close() {
-        super.close();
-        try {
-            for (SQLiteDatabase db : sqliteDatebases) {
-                try {
-                    db.close();
-                } catch (Exception e) {
-                }
-            }
-        } catch (Exception e) {
-        }
-        try {
-            sqliteDatebases.clear();
-        } catch (Exception e) {
-        }
     }
 
 }

@@ -68,7 +68,6 @@ public class DaoTransactionFactory {
                 SQLiteDatabase db = inner.getTemplate().getOrmsqLiteHelper().getSqLiteDatabase();
                 db.beginTransaction();
                 try {
-                    System.out.println("--------DaoTransactionFactory");
                     Object ret = method.invoke(inner, args);
                     db.setTransactionSuccessful();
                     return ret;

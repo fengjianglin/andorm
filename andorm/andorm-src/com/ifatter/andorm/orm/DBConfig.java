@@ -20,16 +20,23 @@ import android.text.TextUtils;
 
 import java.util.ResourceBundle;
 
-public abstract class Config {
+public abstract class DBConfig {
+
+    public static final String DEFAULT_NAME = "default_database.db";
 
     /**
      * cfgPath = "com/ifatter/andorm/database/config";
      */
-    public static Config get(String cfgPath) {
+    public static DBConfig get(String cfgPath) {
         final ResourceBundle bundle = ResourceBundle.getBundle(cfgPath);
-        return new Config() {
+        return new DBConfig() {
             public String configName() {
-                return bundle.getString("name");
+                String name = bundle.getString("name");
+                if (TextUtils.isEmpty(name)) {
+                    return DEFAULT_NAME;
+                } else {
+                    return name;
+                }
             }
 
             public Class<?>[] configBeanClasses() {
@@ -55,7 +62,7 @@ public abstract class Config {
     final String getName() {
         String name = configName();
         if (TextUtils.isEmpty(name)) {
-            return "default_database.db";
+            return DEFAULT_NAME;
         } else {
             return name;
         }

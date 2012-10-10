@@ -82,6 +82,7 @@ public final class Reflactor {
         try {
             return clazz.newInstance();
         } catch (InstantiationException ie) {
+            ie.printStackTrace();
             throw new AndormException(clazz.getCanonicalName());
         } catch (IllegalAccessException iae) {
             throw new AndormException(clazz.getCanonicalName());

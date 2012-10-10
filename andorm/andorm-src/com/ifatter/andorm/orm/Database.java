@@ -26,7 +26,10 @@ import java.lang.annotation.Target;
 })
 public @interface Database {
 
-    public Class<? extends Config> database();
+    public Class<? extends DBConfig> database() default DEFAULT.class;
 
-    public String cfgPath();
+    public String cfgPath() default "";
+
+    static abstract class DEFAULT extends DBConfig {
+    }
 }

@@ -16,13 +16,16 @@
 
 package com.ifatter.andorm.orm;
 
+import com.ifatter.andorm.reflect.Reflactor;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 
@@ -34,25 +37,53 @@ public abstract class DaoSupport<T> {
 
     public DaoSupport(Context context) {
 
+        boolean init = false;
+
         Class<?> claz = getClass();
         if (claz.isAnnotationPresent(Database.class)) {
             Database db = claz.getAnnotation(Database.class);
-            Class<? extends Config> c = db.database();
-            try {
-                Constructor<? extends Config> con = c.getConstructor();
-                Config support = con.newInstance();
-                String dirPath = context.getFilesDir().getAbsolutePath() + "/database/";
-                File dir = new File(dirPath);
-                if (!dir.exists()) {
-                    dir.mkdirs();
+            initDBHelper(context, db);
+            init = true;
+        } else {
+            Class<?>[] classes = claz.getInterfaces();
+            if (classes != null) {
+                for (Class<?> clazz : classes) {
+                    if (clazz.isAnnotationPresent(Database.class)) {
+                        Database db = clazz.getAnnotation(Database.class);
+                        initDBHelper(context, db);
+                        init = true;
+                        break;
+                    }
                 }
-                String path = dirPath + support.getName();
-                mDBHelper = new ORMSQLiteHelper(path, support.getClasses());
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
 
+        if (!init) {
+            throw new IllegalArgumentException(this.getClass() + " need Database");
+        }
+    }
+
+    private void initDBHelper(Context context, Database db) {
+        DBConfig support = null;
+
+        Class<? extends DBConfig> c = db.database();
+        if (!Modifier.isAbstract(c.getModifiers())) {
+            support = Reflactor.newInstance(c);
+        } else {
+            String cfgPath = db.cfgPath();
+            if (!TextUtils.isEmpty(cfgPath)) {
+                support = DBConfig.get(cfgPath);
+            } else {
+                throw new IllegalArgumentException(db.getClass() + " need database or cfgPath");
+            }
+        }
+        String dirPath = context.getFilesDir().getAbsolutePath() + "/database/";
+        File dir = new File(dirPath);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        String path = dirPath + support.getName();
+        mDBHelper = new ORMSQLiteHelper(path, support.getClasses());
     }
 
     /**
