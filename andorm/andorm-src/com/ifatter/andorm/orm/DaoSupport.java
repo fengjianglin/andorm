@@ -90,8 +90,8 @@ public abstract class DaoSupport {
 		mDBHelper = new ORMSQLiteHelper(path);
 	}
 
-	public Object getDaoTransaction() {
-
+	@SuppressWarnings("unchecked")
+	public <T> T getDaoTransaction() {
 		InvocationHandler invocationHandler = new InvocationHandler() {
 			public Object invoke(Object proxy, Method method, Object[] args)
 					throws Throwable {
@@ -116,7 +116,7 @@ public abstract class DaoSupport {
 		Object proxy = Proxy.newProxyInstance(DaoSupport.this.getClass()
 				.getClassLoader(), DaoSupport.this.getClass().getInterfaces(),
 				invocationHandler);
-		return proxy;
+		return (T) proxy;
 	}
 
 	protected final synchronized Template getTemplate() {

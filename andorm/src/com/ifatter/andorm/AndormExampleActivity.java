@@ -1,10 +1,7 @@
 package com.ifatter.andorm;
 
-import java.io.File;
-
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Environment;
 
 import com.ifatter.andorm.dao.BookDao;
 import com.ifatter.andorm.dao.impl.BookDaoImpl;
@@ -21,12 +18,9 @@ public class AndormExampleActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		File f = Environment.getDataDirectory();
-		System.out.println(f.getAbsolutePath());
-
 		bookDao = DaoFactory.createDao(BookDaoImpl.class, this);
 
-		bookDao = (BookDao) new BookDaoImpl(this).getDaoTransaction();
+		bookDao = new BookDaoImpl(this).getDaoTransaction();
 
 		Book book = new Book();
 		book.setTitle("XXXX");
