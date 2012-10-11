@@ -16,136 +16,100 @@
 
 package com.ifatter.andorm.orm;
 
-import java.io.File;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.text.TextUtils;
-
 import com.ifatter.andorm.orm.annotation.Database;
 import com.ifatter.andorm.orm.annotation.Model;
-import com.ifatter.andorm.orm.annotation.Transaction;
 import com.ifatter.andorm.reflect.Reflactor;
+
+import android.content.Context;
+import android.text.TextUtils;
+
+import java.io.File;
+import java.lang.reflect.Modifier;
 
 public abstract class DaoSupport {
 
-	private Template mTemplate;
+    private Template mTemplate;
 
-	private ORMSQLiteHelper mDBHelper;
+    private ORMSQLiteHelper mDBHelper;
 
-	public DaoSupport(Context context) {
+    public DaoSupport(Context context) {
 
-		boolean init = false;
+        boolean init = false;
 
-		Class<?> claz = getClass();
-		if (claz.isAnnotationPresent(Database.class)) {
-			Database db = claz.getAnnotation(Database.class);
-			initDBHelper(context, db);
-			init = true;
-		} else {
-			Class<?>[] classes = claz.getInterfaces();
-			if (classes != null) {
-				for (Class<?> clazz : classes) {
-					if (clazz.isAnnotationPresent(Database.class)) {
-						Database db = clazz.getAnnotation(Database.class);
-						initDBHelper(context, db);
-						init = true;
-						break;
-					}
-				}
-			}
-		}
+        Class<?> claz = getClass();
+        if (claz.isAnnotationPresent(Database.class)) {
+            Database db = claz.getAnnotation(Database.class);
+            initDBHelper(context, db);
+            init = true;
+        } else {
+            Class<?>[] classes = claz.getInterfaces();
+            if (classes != null) {
+                for (Class<?> clazz : classes) {
+                    if (clazz.isAnnotationPresent(Database.class)) {
+                        Database db = clazz.getAnnotation(Database.class);
+                        initDBHelper(context, db);
+                        init = true;
+                        break;
+                    }
+                }
+            }
+        }
 
-		if (!init) {
-			throw new IllegalArgumentException(this.getClass()
-					+ " need Database");
-		}
-	}
+        if (!init) {
+            throw new IllegalArgumentException(this.getClass() + " need Database");
+        }
+    }
 
-	private void initDBHelper(Context context, Database db) {
-		DBConfig support = null;
+    private void initDBHelper(Context context, Database db) {
+        DBConfig support = null;
 
-		Class<? extends DBConfig> c = db.database();
-		if (!Modifier.isAbstract(c.getModifiers())) {
-			support = Reflactor.newInstance(c);
-		} else {
-			String cfgPath = db.cfgPath();
-			if (!TextUtils.isEmpty(cfgPath)) {
-				support = DBConfig.get(cfgPath);
-			} else {
-				throw new IllegalArgumentException(db.getClass()
-						+ " need database or cfgPath");
-			}
-		}
-		String dirPath = context.getFilesDir().getAbsolutePath() + "/database/";
-		File dir = new File(dirPath);
-		if (!dir.exists()) {
-			dir.mkdirs();
-		}
-		String path = dirPath + support.getName();
-		mDBHelper = new ORMSQLiteHelper(path);
-	}
+        Class<? extends DBConfig> c = db.database();
+        if (!Modifier.isAbstract(c.getModifiers())) {
+            support = Reflactor.newInstance(c);
+        } else {
+            String cfgPath = db.cfgPath();
+            if (!TextUtils.isEmpty(cfgPath)) {
+                support = DBConfig.get(cfgPath);
+            } else {
+                throw new IllegalArgumentException(db.getClass() + " need database or cfgPath");
+            }
+        }
+        String dirPath = context.getFilesDir().getAbsolutePath() + "/database/";
+        File dir = new File(dirPath);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        String path = dirPath + support.getName();
+        mDBHelper = new ORMSQLiteHelper(path);
+    }
 
-	@SuppressWarnings("unchecked")
-	public <T> T getDaoTransaction() {
-		InvocationHandler invocationHandler = new InvocationHandler() {
-			public Object invoke(Object proxy, Method method, Object[] args)
-					throws Throwable {
-				if (method.isAnnotationPresent(Transaction.class)) {
-					System.out.println("--------transation.begin");
-					SQLiteDatabase db = getTemplate().getOrmsqLiteHelper()
-							.getSqLiteDatabase();
-					db.beginTransaction();
-					try {
-						Object ret = method.invoke(DaoSupport.this, args);
-						db.setTransactionSuccessful();
-						return ret;
-					} finally {
-						db.endTransaction();
-						System.out.println("--------transation.end");
-					}
-				} else {
-					return method.invoke(DaoSupport.this, args);
-				}
-			}
-		};
-		Object proxy = Proxy.newProxyInstance(DaoSupport.this.getClass()
-				.getClassLoader(), DaoSupport.this.getClass().getInterfaces(),
-				invocationHandler);
-		return (T) proxy;
-	}
+    protected final synchronized Template getTemplate() {
+        if (mTemplate == null) {
+            boolean b = false;
+            Class<?>[] interfaces = getClass().getInterfaces();
+            if (interfaces != null) {
+                for (Class<?> clazz : interfaces) {
+                    if (clazz.isAnnotationPresent(Model.class)) {
+                        Model model = clazz.getAnnotation(Model.class);
+                        Class<?> cla = (Class<?>)model.model();
+                        mTemplate = new Template(mDBHelper, cla);
+                        b = true;
+                        break;
+                    }
+                }
+            }
+            if (!b) {
+                throw new IllegalArgumentException(getClass() + " need @Model");
+            }
+        }
+        return mTemplate;
+    }
 
-	protected final synchronized Template getTemplate() {
-		if (mTemplate == null) {
-			boolean b = false;
-			Class<?>[] interfaces = getClass().getInterfaces();
-			if (interfaces != null) {
-				for (Class<?> clazz : interfaces) {
-					if (clazz.isAnnotationPresent(Model.class)) {
-						Model model = clazz.getAnnotation(Model.class);
-						Class<?> cla = (Class<?>) model.model();
-						mTemplate = new Template(mDBHelper, cla);
-						b = true;
-						break;
-					}
-				}
-			}
-			if (!b) {
-				throw new IllegalArgumentException(getClass() + " need @Model");
-			}
-		}
-		return mTemplate;
-	}
-
-	public void close() {
-		try {
-			mDBHelper.close();
-		} catch (Exception e) {
-		}
-	}
+    public void close() {
+        try {
+            mDBHelper.close();
+        } catch (Exception e) {
+        }
+    }
 
 }
