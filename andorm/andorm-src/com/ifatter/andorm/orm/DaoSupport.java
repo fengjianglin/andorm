@@ -75,6 +75,7 @@ public abstract class DaoSupport {
             }
         }
         String dirPath = context.getFilesDir().getAbsolutePath() + "/database/";
+        dirPath = DBConfig.DEFAULT_PATH;
         File dir = new File(dirPath);
         if (!dir.exists()) {
             dir.mkdirs();

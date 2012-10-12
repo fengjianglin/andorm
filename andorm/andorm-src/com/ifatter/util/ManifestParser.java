@@ -39,8 +39,6 @@ import javax.xml.parsers.SAXParserFactory;
 
 public class ManifestParser {
 
-    private String apkPath;
-
     private InputStream manifestInputStream = null;
 
     private boolean streamConsumed = false;
@@ -48,18 +46,21 @@ public class ManifestParser {
     private StringBuffer manifest = new StringBuffer();
 
     public ManifestParser() {
+    }
+
+    public Manifest parser() {
+
+        if (ManifestHandler.mManifest != null) {
+            return ManifestHandler.mManifest;
+        }
+
         ClassLoader loader = VMStack.getCallingClassLoader();
         String loaderToString = loader.toString();
         int start = loaderToString.indexOf('[');
         int end = loaderToString.indexOf(']', start);
-        this.apkPath = loaderToString.substring(start + 1, end);
-        manifestInputStream = getAndroidManifest();
-    }
-
-    private InputStream getAndroidManifest() {
-        ZipFile zFile;
+        String apkPath = loaderToString.substring(start + 1, end);
         try {
-            zFile = new ZipFile(this.apkPath);
+            ZipFile zFile = new ZipFile(apkPath);
             ZipEntry entry = zFile.getEntry("AndroidManifest.xml");
             entry.getComment();
             entry.getCompressedSize();
@@ -67,17 +68,9 @@ public class ManifestParser {
             entry.isDirectory();
             entry.getSize();
             entry.getMethod();
-            return zFile.getInputStream(entry);
+            manifestInputStream = zFile.getInputStream(entry);
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        return null;
-    }
-
-    public Manifest parser() {
-
-        if (ManifestHandler.mManifest != null) {
-            return ManifestHandler.mManifest;
         }
 
         parseManifestToString();

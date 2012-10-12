@@ -16,13 +16,19 @@
 
 package com.ifatter.andorm.orm;
 
+import com.ifatter.util.ManifestParser;
+
 import android.text.TextUtils;
 
 import java.util.ResourceBundle;
 
 public abstract class DBConfig {
 
-    public static final String DEFAULT_NAME = "default_database.db";
+    public static final String PACKAGE_NAME = new ManifestParser().parser().getPackageName();
+
+    public static final String DEFAULT_PATH = "/data/data/" + PACKAGE_NAME + "/andorm/";
+
+    public static final String DEFAULT_NAME = "andorm_default.db";
 
     /**
      * cfgPath = "com/ifatter/andorm/database/config";
