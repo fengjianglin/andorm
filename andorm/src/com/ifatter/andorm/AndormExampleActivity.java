@@ -6,12 +6,10 @@ import com.ifatter.andorm.dao.BookDao;
 import com.ifatter.andorm.dao.impl.BookDaoImpl;
 import com.ifatter.andorm.model.Book;
 import com.ifatter.andorm.orm.DaoFactory;
-import com.ifatter.andorm.util.ManifestParser;
+import com.ifatter.util.ManifestParser;
 
 import android.app.Activity;
 import android.os.Bundle;
-
-import java.io.IOException;
 
 public class AndormExampleActivity extends Activity {
 

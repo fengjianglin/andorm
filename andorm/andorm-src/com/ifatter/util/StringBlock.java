@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ifatter.andorm.util;
+package com.ifatter.util;
 
 import java.io.IOException;
 
