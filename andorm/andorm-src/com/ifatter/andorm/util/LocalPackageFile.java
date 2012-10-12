@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package com.ifatter.andorm.orm.annotation;
+package com.ifatter.andorm.util;
 
-import com.ifatter.andorm.orm.DBConfig;
+import dalvik.system.VMStack;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.io.InputStream;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target({
-    java.lang.annotation.ElementType.TYPE
-})
-public @interface Database {
+public class LocalPackageFile {
 
-    public Class<? extends DBConfig> database() default DEFAULT.class;
-
-    public String cfgPath() default "";
-
-    static abstract class DEFAULT extends DBConfig {
+    /**
+     * @param filePath String <br />
+     *            filePath = "com/ifatter/andorm/database/config.xml";
+     * @return
+     */
+    public static InputStream getInputStream(String filePath) {
+        ClassLoader loader = VMStack.getCallingClassLoader();
+        InputStream stream = loader.getResourceAsStream(filePath);
+        return stream;
     }
+
 }

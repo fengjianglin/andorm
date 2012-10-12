@@ -16,14 +16,14 @@
 
 package com.ifatter.andorm.orm;
 
+import com.ifatter.andorm.orm.annotation.Column;
+import com.ifatter.andorm.orm.annotation.Id;
+import com.ifatter.andorm.orm.annotation.Table;
+
 import android.database.sqlite.SQLiteDatabase;
 
 import java.lang.reflect.Field;
 import java.sql.Blob;
-
-import com.ifatter.andorm.orm.annotation.Column;
-import com.ifatter.andorm.orm.annotation.Id;
-import com.ifatter.andorm.orm.annotation.Table;
 
 final public class ORMSQLiteHelper extends SQLiteOpenHelper {
 

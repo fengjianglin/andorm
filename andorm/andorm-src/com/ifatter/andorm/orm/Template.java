@@ -16,6 +16,10 @@
 
 package com.ifatter.andorm.orm;
 
+import com.ifatter.andorm.orm.annotation.Column;
+import com.ifatter.andorm.orm.annotation.Id;
+import com.ifatter.andorm.orm.annotation.Table;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -26,10 +30,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.ifatter.andorm.orm.annotation.Column;
-import com.ifatter.andorm.orm.annotation.Id;
-import com.ifatter.andorm.orm.annotation.Table;
 
 public class Template implements Operations {
 

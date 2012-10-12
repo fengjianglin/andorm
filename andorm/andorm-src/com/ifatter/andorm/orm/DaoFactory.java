@@ -16,13 +16,14 @@
 
 package com.ifatter.andorm.orm;
 
+import com.ifatter.andorm.orm.annotation.Transaction;
+
 import android.database.sqlite.SQLiteDatabase;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-
-import com.ifatter.andorm.orm.annotation.Transaction;
 
 public class DaoFactory {
 
