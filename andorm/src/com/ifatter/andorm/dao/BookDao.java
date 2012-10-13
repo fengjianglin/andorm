@@ -1,15 +1,13 @@
 package com.ifatter.andorm.dao;
 
-import com.ifatter.andorm.database.ExampleDatabase;
+import java.util.List;
+
 import com.ifatter.andorm.model.Book;
 import com.ifatter.andorm.orm.annotation.Database;
 import com.ifatter.andorm.orm.annotation.Model;
 import com.ifatter.andorm.orm.annotation.Transaction;
 
-import java.util.List;
-
-@Database(database = ExampleDatabase.class)
-// @Database(cfgPath = "com/ifatter/andorm/database/config")
+@Database(dbCfgPath = "com/ifatter/andorm/dao/andorm_db")
 @Model(model = Book.class)
 public interface BookDao {
 

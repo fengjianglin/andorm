@@ -46,6 +46,7 @@ public class DaoFactory {
 					dao = c.newInstance(constructorParams);
 					break;
 				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		} catch (Exception e) {

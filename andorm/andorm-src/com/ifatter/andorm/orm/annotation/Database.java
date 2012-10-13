@@ -16,22 +16,14 @@
 
 package com.ifatter.andorm.orm.annotation;
 
-import com.ifatter.andorm.orm.DBConfig;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({
-    java.lang.annotation.ElementType.TYPE
-})
+@Target({ java.lang.annotation.ElementType.TYPE })
 public @interface Database {
 
-    public Class<? extends DBConfig> database() default DEFAULT.class;
+	public String dbCfgPath();
 
-    public String cfgPath() default "";
-
-    static abstract class DEFAULT extends DBConfig {
-    }
 }

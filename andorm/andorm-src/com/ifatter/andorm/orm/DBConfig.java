@@ -16,47 +16,56 @@
 
 package com.ifatter.andorm.orm;
 
-import com.ifatter.util.ManifestParser;
-
 import android.text.TextUtils;
 
-import java.util.ResourceBundle;
+import com.ifatter.util.LocalResourceBundle;
+import com.ifatter.util.ManifestParser;
 
-public abstract class DBConfig {
+public class DBConfig {
 
-    public static final String PACKAGE_NAME = new ManifestParser().parser().getPackageName();
+	public static final String PACKAGE_NAME = new ManifestParser().parser()
+			.getPackageName();
 
-    public static final String DEFAULT_PATH = "/data/data/" + PACKAGE_NAME + "/andorm/";
+	public static final String DEFAULT_PATH = "/data/data/" + PACKAGE_NAME
+			+ "/andorm/";
 
-    public static final String DEFAULT_NAME = "andorm_default.db";
+	public static final String DEFAULT_NAME = "andorm_default.db";
 
-    /**
-     * cfgPath = "com/ifatter/andorm/database/config";
-     */
-    public static DBConfig get(String cfgPath) {
-        final ResourceBundle bundle = ResourceBundle.getBundle(cfgPath);
-        return new DBConfig() {
-            public String configName() {
-                String name = bundle.getString("name");
-                if (TextUtils.isEmpty(name)) {
-                    return DEFAULT_NAME;
-                } else {
-                    return name;
-                }
-            }
+	private String path;
+	private String name;
 
-        };
-    }
+	private DBConfig(String path, String name) {
+		this.path = path;
+		this.name = name;
+	}
 
-    final String getName() {
-        String name = configName();
-        if (TextUtils.isEmpty(name)) {
-            return DEFAULT_NAME;
-        } else {
-            return name;
-        }
-    }
+	public String getPath() {
+		return path;
+	}
 
-    public abstract String configName();
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * cfgPath = "com/ifatter/andorm/database/config";
+	 */
+	public static DBConfig get(String cfgPath) {
+		String path, name;
+		LocalResourceBundle bundle;
+		if (TextUtils.isEmpty(cfgPath)
+				|| (bundle = LocalResourceBundle.getBundle(cfgPath)) == null) {
+			path = DEFAULT_PATH;
+			name = DEFAULT_NAME;
+		} else {
+			if (TextUtils.isEmpty((path = bundle.getString("db.path")))) {
+				path = DEFAULT_PATH;
+			}
+			if (TextUtils.isEmpty((name = bundle.getString("db.name")))) {
+				name = DEFAULT_NAME;
+			}
+		}
+		return new DBConfig(path, name);
+	}
 
 }
