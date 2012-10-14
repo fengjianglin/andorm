@@ -1,18 +1,12 @@
 package com.ifatter.andorm.dao.impl;
 
+import java.util.List;
+
 import com.ifatter.andorm.dao.BookDao;
 import com.ifatter.andorm.model.Book;
 import com.ifatter.andorm.orm.DaoSupport;
 
-import android.content.Context;
-
-import java.util.List;
-
 public class BookDaoImpl extends DaoSupport implements BookDao {
-
-	public BookDaoImpl(Context context) {
-		super(context);
-	}
 
 	public List<Book> findAll() {
 		return getTemplate().find();

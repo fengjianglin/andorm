@@ -16,14 +16,12 @@
 
 package com.ifatter.andorm.orm;
 
-import com.ifatter.andorm.orm.annotation.Transaction;
-
-import android.database.sqlite.SQLiteDatabase;
-
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import android.database.sqlite.SQLiteDatabase;
+import com.ifatter.andorm.orm.annotation.Transaction;
+import com.ifatter.andorm.reflect.Reflactor;
 
 public class DaoFactory {
 
@@ -31,27 +29,11 @@ public class DaoFactory {
 	 * @param <T>
 	 * @param daoImplClass
 	 *            dao实现类
-	 * @param constructorParams
-	 *            dao实现类构造函数所需要的参数
 	 * @return *动态代理实现，需要向上转型成接口
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T createDao(Class<? extends DaoSupport> daoImplClass,
-			Object... constructorParams) {
-		DaoSupport dao = null;
-		try {
-			Constructor<DaoSupport>[] cons = daoImplClass.getConstructors();
-			for (Constructor<DaoSupport> c : cons) {
-				try {
-					dao = c.newInstance(constructorParams);
-					break;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public static <T> T createDao(Class<? extends DaoSupport> daoImplClass) {
+		DaoSupport dao = Reflactor.newInstance(daoImplClass);
 		if (dao != null) {
 			DaoTransInvoHandler handler = new DaoTransInvoHandler(
 					(DaoSupport) dao);

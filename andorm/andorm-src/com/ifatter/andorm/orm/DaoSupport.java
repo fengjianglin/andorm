@@ -18,8 +18,6 @@ package com.ifatter.andorm.orm;
 
 import java.io.File;
 
-import android.content.Context;
-
 import com.ifatter.andorm.orm.annotation.Database;
 import com.ifatter.andorm.orm.annotation.Model;
 
@@ -29,14 +27,14 @@ public abstract class DaoSupport {
 
 	private ORMSQLiteHelper mDBHelper;
 
-	public DaoSupport(Context context) {
+	public DaoSupport() {
 
 		boolean init = false;
 
 		Class<?> claz = getClass();
 		if (claz.isAnnotationPresent(Database.class)) {
 			Database db = claz.getAnnotation(Database.class);
-			initDBHelper(context, db);
+			initDBHelper(db);
 			init = true;
 		} else {
 			Class<?>[] classes = claz.getInterfaces();
@@ -44,7 +42,7 @@ public abstract class DaoSupport {
 				for (Class<?> clazz : classes) {
 					if (clazz.isAnnotationPresent(Database.class)) {
 						Database db = clazz.getAnnotation(Database.class);
-						initDBHelper(context, db);
+						initDBHelper(db);
 						init = true;
 						break;
 					}
@@ -58,7 +56,7 @@ public abstract class DaoSupport {
 		}
 	}
 
-	private void initDBHelper(Context context, Database db) {
+	private void initDBHelper(Database db) {
 		String cfgPath = db.dbCfgPath();
 		DBConfig support = DBConfig.get(cfgPath);
 		String dirPath = support.getPath();
