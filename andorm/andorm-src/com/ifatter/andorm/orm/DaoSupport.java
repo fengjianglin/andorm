@@ -30,29 +30,20 @@ public abstract class DaoSupport {
 	public DaoSupport() {
 
 		boolean init = false;
-
-		Class<?> claz = getClass();
-		if (claz.isAnnotationPresent(Database.class)) {
-			Database db = claz.getAnnotation(Database.class);
-			initDBHelper(db);
-			init = true;
-		} else {
-			Class<?>[] classes = claz.getInterfaces();
-			if (classes != null) {
-				for (Class<?> clazz : classes) {
-					if (clazz.isAnnotationPresent(Database.class)) {
-						Database db = clazz.getAnnotation(Database.class);
-						initDBHelper(db);
-						init = true;
-						break;
-					}
+		Class<?>[] classes = getClass().getInterfaces();
+		if (classes != null) {
+			for (Class<?> clazz : classes) {
+				if (clazz.isAnnotationPresent(Database.class)) {
+					Database db = clazz.getAnnotation(Database.class);
+					initDBHelper(db);
+					init = true;
+					break;
 				}
 			}
 		}
-
 		if (!init) {
 			throw new IllegalArgumentException(this.getClass()
-					+ " need Database");
+					+ " need @Database");
 		}
 	}
 
