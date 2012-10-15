@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class Template implements Operations {
 
-    private final ORMSQLiteHelper mDBHelper;
+    private final DatabaseManager mDBHelper;
 
     private final Class<?> mClazz;
 
@@ -43,7 +43,7 @@ public class Template implements Operations {
 
     private String mIdColumn;
 
-    protected <T> Template(ORMSQLiteHelper dbHelper, Class<T> clazz) {
+    protected <T> Template(DatabaseManager dbHelper, Class<T> clazz) {
 
         this.mDBHelper = dbHelper;
         this.mClazz = clazz;
@@ -64,10 +64,6 @@ public class Template implements Operations {
         }
 
         ensureTableExist(this.mTableName);
-    }
-
-    ORMSQLiteHelper getOrmsqLiteHelper() {
-        return mDBHelper;
     }
 
     private void ensureTableExist(String table) {
@@ -111,9 +107,6 @@ public class Template implements Operations {
             if (cursor != null) {
                 cursor.close();
             }
-            // if (db != null) {
-            // db.close();
-            // }
         }
         return false;
     }
@@ -141,9 +134,6 @@ public class Template implements Operations {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            // if (db != null) {
-            // db.close();
-            // }
         }
         return 0L;
     }
@@ -156,7 +146,6 @@ public class Template implements Operations {
             Integer.toString(id)
         };
         ret = db.delete(this.mTableName, where, whereValue);
-        // db.close();
         return ret;
     }
 
@@ -172,7 +161,6 @@ public class Template implements Operations {
                     + sb + ")";
 
             db.execSQL(sql, (Object[])ids);
-            // db.close();
         }
     }
 
@@ -196,9 +184,6 @@ public class Template implements Operations {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            // if (db != null) {
-            // db.close();
-            // }
         }
         return ret;
     }
@@ -218,9 +203,6 @@ public class Template implements Operations {
             if (cursor != null) {
                 cursor.close();
             }
-            // if (db != null) {
-            // db.close();
-            // }
         }
 
         return list;
@@ -248,9 +230,6 @@ public class Template implements Operations {
             if (cursor != null) {
                 cursor.close();
             }
-            // if (db != null) {
-            // db.close();
-            // }
         }
 
         return list;
@@ -277,9 +256,6 @@ public class Template implements Operations {
             if (cursor != null) {
                 cursor.close();
             }
-            // if (db != null) {
-            // db.close();
-            // }
         }
         return retList;
     }
@@ -296,9 +272,6 @@ public class Template implements Operations {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            // if (db != null) {
-            // db.close();
-            // }
         }
     }
 
@@ -365,13 +338,6 @@ public class Template implements Operations {
                 continue;
             }
             cv.put(column.name(), fieldValue.toString());
-        }
-    }
-
-    public void close() {
-        try {
-            mDBHelper.close();
-        } catch (Exception e) {
         }
     }
 

@@ -16,5 +16,37 @@
 
 package com.ifatter.andorm.orm;
 
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 定义原子操作
+ * 
+ * @author ifatter
+ */
 interface Operations {
+
+    public boolean isExist(String sql, String[] selectionArgs);
+
+    public <T> T get(int id);
+
+    public <T> long insert(T entity);
+
+    public int delete(int id);
+
+    public void delete(Integer... ids);
+
+    public <T> int update(T entity);
+
+    public <T> List<T> rawQuery(String sql, String[] selectionArgs);
+
+    public <T> List<T> find();
+
+    public <T> List<T> find(String[] columns, String selection, String[] selectionArgs,
+            String groupBy, String having, String orderBy, String limit);
+
+    public List<Map<String, String>> query(String sql, String[] selectionArgs);
+
+    public void execSql(String sql, Object[] selectionArgs);
+
 }

@@ -25,31 +25,16 @@ import android.database.sqlite.SQLiteDatabase;
 import java.lang.reflect.Field;
 import java.sql.Blob;
 
-final public class ORMSQLiteHelper extends SQLiteOpenHelper {
+final public class DatabaseManager {
 
-    private SQLiteDatabase sqliteDatebase;
+    private DatabaseCache databaseCache;
 
-    public ORMSQLiteHelper(String dbPath) {
-        super(dbPath);
+    public DatabaseManager(String dbPath) {
+        databaseCache = new DatabaseCache(dbPath);
     }
 
     synchronized SQLiteDatabase getSqLiteDatabase() {
-        if (isAvailableDB()) {
-            return sqliteDatebase;
-        }
-        sqliteDatebase = getDatabase();
-        return sqliteDatebase;
-    }
-
-    synchronized boolean isAvailableDB() {
-        if (sqliteDatebase != null && sqliteDatebase.isOpen()) {
-            if (sqliteDatebase.isReadOnly()) {
-                sqliteDatebase.close();
-            } else {
-                return true;
-            }
-        }
-        return false;
+        return databaseCache.openDatabase();
     }
 
     public void createTable(SQLiteDatabase db, Class<?> clazz) {

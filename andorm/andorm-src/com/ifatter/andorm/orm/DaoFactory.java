@@ -16,62 +16,50 @@
 
 package com.ifatter.andorm.orm;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import android.database.sqlite.SQLiteDatabase;
 import com.ifatter.andorm.orm.annotation.Transaction;
 import com.ifatter.andorm.reflect.Reflactor;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
 public class DaoFactory {
 
-	/**
-	 * @param <T>
-	 * @param daoImplClass
-	 *            dao实现类
-	 * @return *动态代理实现，需要向上转型成接口
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> T createDao(Class<? extends DaoSupport> daoImplClass) {
-		DaoSupport dao = Reflactor.newInstance(daoImplClass);
-		if (dao != null) {
-			DaoTransInvoHandler handler = new DaoTransInvoHandler(
-					(DaoSupport) dao);
-			ClassLoader classLoader = dao.getClass().getClassLoader();
-			Class<?>[] interfaces = dao.getClass().getInterfaces();
-			Object proxy = Proxy.newProxyInstance(classLoader, interfaces,
-					handler);
-			return (T) proxy;
-		}
-		return null;
-	}
+    /**
+     * @param <T>
+     * @param daoImplClass dao实现类
+     * @return *动态代理实现
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T createDao(Class<? extends DaoSupport> daoImplClass) {
+        DaoSupport dao = Reflactor.newInstance(daoImplClass);
+        if (dao != null) {
+            DaoTransInvoHandler handler = new DaoTransInvoHandler((DaoSupport)dao);
+            ClassLoader classLoader = dao.getClass().getClassLoader();
+            Class<?>[] interfaces = dao.getClass().getInterfaces();
+            Object proxy = Proxy.newProxyInstance(classLoader, interfaces, handler);
+            return (T)proxy;
+        }
+        return null;
+    }
 
-	private static class DaoTransInvoHandler implements InvocationHandler {
+    private static class DaoTransInvoHandler implements InvocationHandler {
 
-		private DaoSupport inner;
+        private DaoSupport inner;
 
-		public DaoTransInvoHandler(DaoSupport inner) {
-			this.inner = inner;
-		}
+        public DaoTransInvoHandler(DaoSupport inner) {
+            this.inner = inner;
+        }
 
-		public Object invoke(Object proxy, Method method, Object[] args)
-				throws Throwable {
-			if (method.isAnnotationPresent(Transaction.class)) {
-				System.out.println("--------transation.begin");
-				SQLiteDatabase db = inner.getTemplate().getOrmsqLiteHelper()
-						.getSqLiteDatabase();
-				db.beginTransaction();
-				try {
-					Object ret = method.invoke(inner, args);
-					db.setTransactionSuccessful();
-					return ret;
-				} finally {
-					db.endTransaction();
-					System.out.println("--------transation.end");
-				}
-			} else {
-				return method.invoke(inner, args);
-			}
-		}
-	};
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            if (method.isAnnotationPresent(Transaction.class)) {
+                System.out.println("--------transation.begin");
+                Object ret = inner.transaction(method, args);
+                System.out.println("--------transation.end");
+                return ret;
+            } else {
+                return method.invoke(inner, args);
+            }
+        }
+    };
 }
