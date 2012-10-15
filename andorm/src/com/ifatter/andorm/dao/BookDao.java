@@ -1,3 +1,4 @@
+
 package com.ifatter.andorm.dao;
 
 import java.util.List;
@@ -11,12 +12,12 @@ import com.ifatter.andorm.orm.annotation.Transaction;
 @Model(model = Book.class)
 public interface BookDao {
 
-	public List<Book> findAll();
+    public List<Book> findAll();
 
-	public long insert(Book book);
+    public long insert(Book book);
 
-	public long insert(String title, String url, String icon_url);
+    public long insert(String title, String url, String icon_url);
 
-	@Transaction
-	public void testTransaction();
+    @Transaction
+    public void testTransaction();
 }

@@ -36,24 +36,26 @@ public abstract class DaoSupport {
             for (Class<?> clazz : classes) {
                 if (clazz.isAnnotationPresent(Database.class)) {
                     Database db = clazz.getAnnotation(Database.class);
-                    initDBHelper(db);
+                    initDBHelper(db.dbCfgPath());
                     init = true;
                     break;
                 }
             }
         }
         if (!init) {
-            throw new IllegalArgumentException(this.getClass() + " need @Database");
+            initDBHelper(null);
         }
     }
 
-    private void initDBHelper(Database db) {
-        String cfgPath = db.dbCfgPath();
+    private void initDBHelper(String cfgPath) {
         DBConfig support = DBConfig.get(cfgPath);
         String dirPath = support.getPath();
         File dir = new File(dirPath);
         if (!dir.exists()) {
-            dir.mkdirs();
+            boolean b = dir.mkdirs();
+            if (!b) {
+                throw new AndormException(dirPath + " can't be created");
+            }
         }
         String fileName = support.getName();
         String path = dir.getAbsolutePath() + '/' + fileName;
