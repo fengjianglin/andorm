@@ -164,6 +164,11 @@ public class Template implements Operations {
         }
     }
 
+    @Override
+    public int delete(String whereClause, String[] whereArgs) {
+        return this.mDBHelper.getSqLiteDatabase().delete(this.mTableName, whereClause, whereArgs);
+    }
+
     public <T> int update(T entity) {
         int ret = 0;
         SQLiteDatabase db = null;
@@ -212,6 +217,11 @@ public class Template implements Operations {
         return find(null, null, null, null, null, null, null);
     }
 
+    @Override
+    public <T> List<T> find(String selection, String[] selectionArgs) {
+        return find(null, selection, selectionArgs, null, null, null, null);
+    }
+
     public <T> List<T> find(String[] columns, String selection, String[] selectionArgs,
             String groupBy, String having, String orderBy, String limit) {
 
@@ -222,7 +232,6 @@ public class Template implements Operations {
             db = this.mDBHelper.getSqLiteDatabase();
             cursor = db.query(this.mTableName, columns, selection, selectionArgs, groupBy, having,
                     orderBy, limit);
-
             getListFromCursor(list, cursor);
         } catch (Exception e) {
             e.printStackTrace();
