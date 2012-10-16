@@ -53,9 +53,7 @@ public class DaoFactory {
 
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             if (method.isAnnotationPresent(Transaction.class)) {
-                System.out.println("--------transation.begin");
                 Object ret = inner.transaction(method, args);
-                System.out.println("--------transation.end");
                 return ret;
             } else {
                 return method.invoke(inner, args);
