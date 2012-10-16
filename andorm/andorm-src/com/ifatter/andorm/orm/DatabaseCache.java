@@ -3,11 +3,14 @@ package com.ifatter.andorm.orm;
 
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.WeakHashMap;
 
 public class DatabaseCache {
 
-    private static final WeakHashMap<String, SQLiteDatabase> cache = new WeakHashMap<String, SQLiteDatabase>();
+    private static final Map<String, SQLiteDatabase> cache = Collections
+            .synchronizedMap(new WeakHashMap<String, SQLiteDatabase>());
 
     private final String mSqlitePath;
 
