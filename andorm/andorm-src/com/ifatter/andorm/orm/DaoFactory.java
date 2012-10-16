@@ -25,6 +25,9 @@ import java.lang.reflect.Proxy;
 
 public class DaoFactory {
 
+    // private static Map<Class<? extends DaoSupport>, Object> map = Collections
+    // .synchronizedMap(new WeakHashMap<Class<? extends DaoSupport>, Object>());
+
     /**
      * @param <T>
      * @param daoImplClass dao实现类
@@ -32,12 +35,19 @@ public class DaoFactory {
      */
     @SuppressWarnings("unchecked")
     public static <T> T createDao(Class<? extends DaoSupport> daoImplClass) {
+
+        // Object proxy = map.get(daoImplClass);
+        // if (proxy != null) {
+        // return (T)proxy;
+        // }
+
         DaoSupport dao = Reflactor.newInstance(daoImplClass);
         if (dao != null) {
             DaoTransInvoHandler handler = new DaoTransInvoHandler((DaoSupport)dao);
             ClassLoader classLoader = dao.getClass().getClassLoader();
             Class<?>[] interfaces = dao.getClass().getInterfaces();
             Object proxy = Proxy.newProxyInstance(classLoader, interfaces, handler);
+            // map.put(daoImplClass, proxy);
             return (T)proxy;
         }
         return null;

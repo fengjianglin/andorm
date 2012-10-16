@@ -16,18 +16,16 @@
 
 package com.ifatter.andorm.orm;
 
-import java.io.File;
-import java.lang.reflect.Method;
-
 import com.ifatter.andorm.orm.annotation.Database;
 import com.ifatter.andorm.orm.annotation.Model;
-import android.database.sqlite.SQLiteDatabase;
+import java.io.File;
+import java.lang.reflect.Method;
 
 public abstract class DaoSupport {
 
     private Template mTemplate;
 
-    private DatabaseManager mDBHelper;
+    private DatabaseCache mDBCache;
 
     public DaoSupport() {
         boolean init = false;
@@ -36,18 +34,18 @@ public abstract class DaoSupport {
             for (Class<?> clazz : classes) {
                 if (clazz.isAnnotationPresent(Database.class)) {
                     Database db = clazz.getAnnotation(Database.class);
-                    initDBHelper(db.dbCfgPath());
+                    initDB(db.dbCfgPath());
                     init = true;
                     break;
                 }
             }
         }
         if (!init) {
-            initDBHelper(null);
+            initDB(null);
         }
     }
 
-    private void initDBHelper(String cfgPath) {
+    private void initDB(String cfgPath) {
         DBConfig support = DBConfig.get(cfgPath);
         String dirPath = support.getPath();
         File dir = new File(dirPath);
@@ -59,19 +57,11 @@ public abstract class DaoSupport {
         }
         String fileName = support.getName();
         String path = dir.getAbsolutePath() + '/' + fileName;
-        mDBHelper = new DatabaseManager(path);
+        mDBCache = new DatabaseCache(path);
     }
 
     Object transaction(Method method, Object... args) throws Throwable {
-        SQLiteDatabase db = mDBHelper.getSqLiteDatabase();
-        try {
-            db.beginTransaction();
-            Object ret = method.invoke(this, args);
-            db.setTransactionSuccessful();
-            return ret;
-        } finally {
-            db.endTransaction();
-        }
+        return getTemplate().transaction(this, method, args);
     }
 
     protected final synchronized Template getTemplate() {
@@ -83,7 +73,7 @@ public abstract class DaoSupport {
                     if (clazz.isAnnotationPresent(Model.class)) {
                         Model model = clazz.getAnnotation(Model.class);
                         Class<?> cla = (Class<?>)model.model();
-                        mTemplate = new Template(mDBHelper, cla);
+                        mTemplate = new Template(mDBCache.openDatabase(), cla);
                         b = true;
                         break;
                     }

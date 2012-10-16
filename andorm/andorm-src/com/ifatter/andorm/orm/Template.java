@@ -25,6 +25,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +34,7 @@ import java.util.Map;
 
 public class Template implements Operations {
 
-    private final DatabaseManager mDBHelper;
+    private final SQLiteDatabase mDatabase;
 
     private final Class<?> mClazz;
 
@@ -43,9 +44,9 @@ public class Template implements Operations {
 
     private String mIdColumn;
 
-    protected <T> Template(DatabaseManager dbHelper, Class<T> clazz) {
+    protected <T> Template(SQLiteDatabase db, Class<T> clazz) {
 
-        this.mDBHelper = dbHelper;
+        this.mDatabase = db;
         this.mClazz = clazz;
 
         if (this.mClazz.isAnnotationPresent(Table.class)) {
@@ -66,15 +67,105 @@ public class Template implements Operations {
         ensureTableExist(this.mTableName);
     }
 
+    private void createTable() {
+
+        String tableName = "";
+        if (this.mClazz.isAnnotationPresent(Table.class)) {
+            Table table = (Table)this.mClazz.getAnnotation(Table.class);
+            tableName = table.name();
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("CREATE TABLE ").append(tableName).append(" (");
+
+        Field[] fields = this.mClazz.getDeclaredFields();
+        int size = fields.length;
+
+        for (int i = size - 1; i >= 0; i--) {
+
+            Field field = fields[i];
+            if (!field.isAnnotationPresent(Column.class)) {
+                continue;
+            }
+
+            Column column = (Column)field.getAnnotation(Column.class);
+
+            String columnType = "";
+            if (column.type().equals("")) {
+                columnType = getColumnType(field.getType());
+            } else {
+                columnType = column.type();
+            }
+
+            sb.append(column.name() + " " + columnType);
+
+            if (column.length() != 0) {
+                sb.append("(" + column.length() + ")");
+            }
+
+            if (field.isAnnotationPresent(Id.class)) {
+                Class<?> clz = field.getType();
+                if (clz == Integer.TYPE || clz == Integer.class) {
+                    sb.append(" primary key autoincrement");
+                } else {
+                    sb.append(" primary key");
+                }
+            }
+
+            sb.append(", ");
+        }
+
+        int length = sb.length();
+        sb.delete(length - 2, length);
+        sb.append(")");
+
+        String sql = sb.toString();
+        mDatabase.execSQL(sql);
+    }
+
+    public void dropTable(Class<?> clazz) {
+        String tableName = "";
+        if (clazz.isAnnotationPresent(Table.class)) {
+            Table table = (Table)clazz.getAnnotation(Table.class);
+            tableName = table.name();
+        }
+        String sql = "DROP TABLE IF EXISTS " + tableName;
+        mDatabase.execSQL(sql);
+    }
+
+    private String getColumnType(Class<?> fieldType) {
+        if (String.class == fieldType) {
+            return "TEXT";
+        }
+        if ((Integer.TYPE == fieldType) || (Integer.class == fieldType)) {
+            return "INTEGER";
+        }
+        if ((Long.TYPE == fieldType) || (Long.class == fieldType)) {
+            return "BIGINT";
+        }
+        if ((Float.TYPE == fieldType) || (Float.class == fieldType)) {
+            return "FLOAT";
+        }
+        if ((Short.TYPE == fieldType) || (Short.class == fieldType)) {
+            return "INT";
+        }
+        if ((Double.TYPE == fieldType) || (Double.class == fieldType)) {
+            return "DOUBLE";
+        }
+        if (Blob.class == fieldType) {
+            return "BLOB";
+        }
+
+        return "TEXT";
+    }
+
     private void ensureTableExist(String table) {
         boolean exist = false;
-        SQLiteDatabase db = null;
         Cursor cursor = null;
         try {
             String sql = "SELECT COUNT(*) FROM sqlite_master where type = 'table' and name = '"
                     + table + "'";
-            db = this.mDBHelper.getSqLiteDatabase();
-            cursor = db.rawQuery(sql, null);
+            cursor = mDatabase.rawQuery(sql, null);
             if (cursor.moveToFirst() && cursor.getInt(0) > 0) {
                 exist = true;
             }
@@ -87,17 +178,15 @@ public class Template implements Operations {
         }
 
         if (!exist) {
-            this.mDBHelper.createTable(db, this.mClazz);
+            createTable();
         }
     }
 
     public boolean isExist(String sql, String[] selectionArgs) {
 
-        SQLiteDatabase db = null;
         Cursor cursor = null;
         try {
-            db = this.mDBHelper.getSqLiteDatabase();
-            cursor = db.rawQuery(sql, selectionArgs);
+            cursor = mDatabase.rawQuery(sql, selectionArgs);
             if (cursor.getCount() > 0) {
                 return true;
             }
@@ -124,12 +213,10 @@ public class Template implements Operations {
     }
 
     public <T> long insert(T entity) {
-        SQLiteDatabase db = null;
         try {
-            db = this.mDBHelper.getSqLiteDatabase();
             ContentValues cv = new ContentValues();
             setContentValues(entity, cv, "insert");
-            long row = db.insert(this.mTableName, null, cv);
+            long row = mDatabase.insert(this.mTableName, null, cv);
             return row;
         } catch (Exception e) {
             e.printStackTrace();
@@ -140,12 +227,11 @@ public class Template implements Operations {
 
     public int delete(int id) {
         int ret = 0;
-        SQLiteDatabase db = this.mDBHelper.getSqLiteDatabase();
         String where = this.mIdColumn + " = ?";
         String[] whereValue = {
             Integer.toString(id)
         };
-        ret = db.delete(this.mTableName, where, whereValue);
+        ret = mDatabase.delete(this.mTableName, where, whereValue);
         return ret;
     }
 
@@ -156,28 +242,23 @@ public class Template implements Operations {
                 sb.append('?').append(',');
             }
             sb.deleteCharAt(sb.length() - 1);
-            SQLiteDatabase db = this.mDBHelper.getSqLiteDatabase();
             String sql = "delete from " + this.mTableName + " where " + this.mIdColumn + " in ("
                     + sb + ")";
 
-            db.execSQL(sql, (Object[])ids);
+            mDatabase.execSQL(sql, (Object[])ids);
         }
     }
 
     @Override
     public int delete(String whereClause, String[] whereArgs) {
-        return this.mDBHelper.getSqLiteDatabase().delete(this.mTableName, whereClause, whereArgs);
+        return this.mDatabase.delete(this.mTableName, whereClause, whereArgs);
     }
 
     public <T> int update(T entity) {
         int ret = 0;
-        SQLiteDatabase db = null;
         try {
-            db = this.mDBHelper.getSqLiteDatabase();
             ContentValues cv = new ContentValues();
-
             setContentValues(entity, cv, "update");
-
             String where = this.mIdColumn + " = ?";
             int id = Integer.parseInt(cv.get(this.mIdColumn).toString());
             cv.remove(this.mIdColumn);
@@ -185,7 +266,7 @@ public class Template implements Operations {
             String[] whereValue = {
                 Integer.toString(id)
             };
-            ret = db.update(this.mTableName, cv, where, whereValue);
+            ret = mDatabase.update(this.mTableName, cv, where, whereValue);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -196,11 +277,9 @@ public class Template implements Operations {
     public <T> List<T> rawQuery(String sql, String[] selectionArgs) {
 
         List<T> list = new ArrayList<T>();
-        SQLiteDatabase db = null;
         Cursor cursor = null;
         try {
-            db = this.mDBHelper.getSqLiteDatabase();
-            cursor = db.rawQuery(sql, selectionArgs);
+            cursor = mDatabase.rawQuery(sql, selectionArgs);
             getListFromCursor(list, cursor);
         } catch (Exception e) {
             e.printStackTrace();
@@ -226,12 +305,10 @@ public class Template implements Operations {
             String groupBy, String having, String orderBy, String limit) {
 
         List<T> list = new ArrayList<T>();
-        SQLiteDatabase db = null;
         Cursor cursor = null;
         try {
-            db = this.mDBHelper.getSqLiteDatabase();
-            cursor = db.query(this.mTableName, columns, selection, selectionArgs, groupBy, having,
-                    orderBy, limit);
+            cursor = mDatabase.query(this.mTableName, columns, selection, selectionArgs, groupBy,
+                    having, orderBy, limit);
             getListFromCursor(list, cursor);
         } catch (Exception e) {
             e.printStackTrace();
@@ -245,12 +322,10 @@ public class Template implements Operations {
     }
 
     public List<Map<String, String>> query(String sql, String[] selectionArgs) {
-        SQLiteDatabase db = null;
         Cursor cursor = null;
         List<Map<String, String>> retList = new ArrayList<Map<String, String>>();
         try {
-            db = this.mDBHelper.getSqLiteDatabase();
-            cursor = db.rawQuery(sql, selectionArgs);
+            cursor = mDatabase.rawQuery(sql, selectionArgs);
             while (cursor.moveToNext()) {
                 Map<String, String> map = new HashMap<String, String>();
                 for (String columnName : cursor.getColumnNames()) {
@@ -270,13 +345,11 @@ public class Template implements Operations {
     }
 
     public void execSql(String sql, Object[] selectionArgs) {
-        SQLiteDatabase db = null;
         try {
-            db = this.mDBHelper.getSqLiteDatabase();
             if (selectionArgs == null) {
-                db.execSQL(sql);
+                mDatabase.execSQL(sql);
             } else {
-                db.execSQL(sql, selectionArgs);
+                mDatabase.execSQL(sql, selectionArgs);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -347,6 +420,17 @@ public class Template implements Operations {
                 continue;
             }
             cv.put(column.name(), fieldValue.toString());
+        }
+    }
+
+    Object transaction(Object object, Method method, Object... args) throws Throwable {
+        try {
+            mDatabase.beginTransaction();
+            Object ret = method.invoke(object, args);
+            mDatabase.setTransactionSuccessful();
+            return ret;
+        } finally {
+            mDatabase.endTransaction();
         }
     }
 

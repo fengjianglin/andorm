@@ -32,8 +32,6 @@ public class AndormExampleActivity extends Activity {
         book.setIconUrl("http://www");
         bookDao.insert(book);
 
-        bookDao.testTransaction();
-
     }
 
 }
