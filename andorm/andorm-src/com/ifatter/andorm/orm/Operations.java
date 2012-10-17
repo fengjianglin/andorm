@@ -38,6 +38,8 @@ interface Operations {
 
     public int delete(String whereClause, String[] whereArgs);
 
+    public int deleteAll();
+
     public <T> int update(T entity);
 
     public <T> List<T> rawQuery(String sql, String[] selectionArgs);

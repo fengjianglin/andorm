@@ -64,7 +64,7 @@ public class Template implements Operations {
             }
         }
 
-        ensureTableExist(this.mTableName);
+        ensureTableExist();
     }
 
     private void createTable() {
@@ -123,13 +123,8 @@ public class Template implements Operations {
         mDatabase.execSQL(sql);
     }
 
-    public void dropTable(Class<?> clazz) {
-        String tableName = "";
-        if (clazz.isAnnotationPresent(Table.class)) {
-            Table table = (Table)clazz.getAnnotation(Table.class);
-            tableName = table.name();
-        }
-        String sql = "DROP TABLE IF EXISTS " + tableName;
+    public void dropTable() {
+        String sql = "DROP TABLE IF EXISTS " + mTableName;
         mDatabase.execSQL(sql);
     }
 
@@ -159,12 +154,18 @@ public class Template implements Operations {
         return "TEXT";
     }
 
-    private void ensureTableExist(String table) {
+    private void ensureTableExist() {
+        if (!isTableExist()) {
+            createTable();
+        }
+    }
+
+    private boolean isTableExist() {
         boolean exist = false;
         Cursor cursor = null;
         try {
             String sql = "SELECT COUNT(*) FROM sqlite_master where type = 'table' and name = '"
-                    + table + "'";
+                    + mTableName + "'";
             cursor = mDatabase.rawQuery(sql, null);
             if (cursor.moveToFirst() && cursor.getInt(0) > 0) {
                 exist = true;
@@ -176,10 +177,7 @@ public class Template implements Operations {
                 cursor.close();
             }
         }
-
-        if (!exist) {
-            createTable();
-        }
+        return exist;
     }
 
     public boolean isExist(String sql, String[] selectionArgs) {
@@ -252,6 +250,10 @@ public class Template implements Operations {
     @Override
     public int delete(String whereClause, String[] whereArgs) {
         return this.mDatabase.delete(this.mTableName, whereClause, whereArgs);
+    }
+
+    public int deleteAll() {
+        return this.mDatabase.delete(mTableName, "1", null);
     }
 
     public <T> int update(T entity) {
