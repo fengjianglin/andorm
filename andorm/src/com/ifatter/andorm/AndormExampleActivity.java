@@ -21,7 +21,7 @@ public class AndormExampleActivity extends Activity {
         bookDao = DaoFactory.createDao(BookDaoImpl.class);
 
         Book book = new Book();
-        book.setTitle("999");
+        book.setTitle("111");
         book.setUrl("http:///andorm/");
         book.setIconUrl("http:///andorm/icon.png");
         bookDao.insert(book);
