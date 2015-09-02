@@ -36,11 +36,17 @@ interface Operations {
 
     public void delete(Integer... ids);
 
+    public int delete(String whereClause, String[] whereArgs);
+
+    public int deleteAll();
+
     public <T> int update(T entity);
 
     public <T> List<T> rawQuery(String sql, String[] selectionArgs);
 
     public <T> List<T> find();
+
+    public <T> List<T> find(String selection, String[] selectionArgs);
 
     public <T> List<T> find(String[] columns, String selection, String[] selectionArgs,
             String groupBy, String having, String orderBy, String limit);

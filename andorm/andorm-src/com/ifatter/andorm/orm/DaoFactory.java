@@ -22,8 +22,14 @@ import com.ifatter.andorm.reflect.Reflactor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 public class DaoFactory {
+
+    private static Map<Class<? extends DaoSupport>, Object> map = Collections
+            .synchronizedMap(new WeakHashMap<Class<? extends DaoSupport>, Object>());
 
     /**
      * @param <T>
@@ -32,12 +38,19 @@ public class DaoFactory {
      */
     @SuppressWarnings("unchecked")
     public static <T> T createDao(Class<? extends DaoSupport> daoImplClass) {
+
+        Object proxy = map.get(daoImplClass);
+        if (proxy != null) {
+            return (T)proxy;
+        }
+
         DaoSupport dao = Reflactor.newInstance(daoImplClass);
         if (dao != null) {
             DaoTransInvoHandler handler = new DaoTransInvoHandler((DaoSupport)dao);
             ClassLoader classLoader = dao.getClass().getClassLoader();
             Class<?>[] interfaces = dao.getClass().getInterfaces();
-            Object proxy = Proxy.newProxyInstance(classLoader, interfaces, handler);
+            proxy = Proxy.newProxyInstance(classLoader, interfaces, handler);
+            map.put(daoImplClass, proxy);
             return (T)proxy;
         }
         return null;
@@ -53,9 +66,7 @@ public class DaoFactory {
 
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             if (method.isAnnotationPresent(Transaction.class)) {
-                System.out.println("--------transation.begin");
                 Object ret = inner.transaction(method, args);
-                System.out.println("--------transation.end");
                 return ret;
             } else {
                 return method.invoke(inner, args);

@@ -27,12 +27,10 @@ public class AndormExampleActivity extends Activity {
         bookDao.insert(book);
 
         book = new Book();
-        book.setTitle("999");
+        book.setTitle("444");
         book.setUrl("http://www");
         book.setIconUrl("http://www");
         bookDao.insert(book);
-
-        bookDao.testTransaction();
 
     }
 

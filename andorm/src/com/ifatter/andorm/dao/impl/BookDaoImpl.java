@@ -27,8 +27,4 @@ public class BookDaoImpl extends DaoSupport implements BookDao {
         return ret;
     }
 
-    public void testTransaction() {
-        System.out.println("------testTransaction");
-    }
-
 }
