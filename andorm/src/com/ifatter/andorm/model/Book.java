@@ -1,12 +1,13 @@
 
 package com.ifatter.andorm.model;
 
+import com.ifatter.andorm.orm.Model;
 import com.ifatter.andorm.orm.annotation.Column;
 import com.ifatter.andorm.orm.annotation.Id;
 import com.ifatter.andorm.orm.annotation.Table;
 
 @Table(name = "table_book")
-public class Book {
+public class Book extends Model{
 
     @Id
     @Column(name = "_id")

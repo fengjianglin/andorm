@@ -26,33 +26,36 @@ import java.util.Map;
  */
 interface Operations {
 
-    public boolean isExist(String sql, String[] selectionArgs);
+	public boolean isExist(String sql, String[] selectionArgs);
 
-    public <T> T get(int id);
+	public Model find(int id);
 
-    public <T> long insert(T entity);
+	public long insert(Model entity);
 
-    public int delete(int id);
+	public int update(Model entity);
 
-    public void delete(Integer... ids);
+	public int save(Model entity);
 
-    public int delete(String whereClause, String[] whereArgs);
+	public int delete(int id);
 
-    public int deleteAll();
+	public void delete(Integer... ids);
 
-    public <T> int update(T entity);
+	public int delete(String whereClause, String[] whereArgs);
 
-    public <T> List<T> rawQuery(String sql, String[] selectionArgs);
+	public int deleteAll();
 
-    public <T> List<T> find();
+	public List<Model> rawQuery(String sql, String[] selectionArgs);
 
-    public <T> List<T> find(String selection, String[] selectionArgs);
+	public List<Model> findAll();
 
-    public <T> List<T> find(String[] columns, String selection, String[] selectionArgs,
-            String groupBy, String having, String orderBy, String limit);
+	public List<Model> find(String selection, String[] selectionArgs);
 
-    public List<Map<String, String>> query(String sql, String[] selectionArgs);
+	public List<Model> find(String[] columns, String selection,
+			String[] selectionArgs, String groupBy, String having,
+			String orderBy, String limit);
 
-    public void execSql(String sql, Object[] selectionArgs);
+	public List<Map<String, String>> query(String sql, String[] selectionArgs);
+
+	public void execSql(String sql, Object[] selectionArgs);
 
 }

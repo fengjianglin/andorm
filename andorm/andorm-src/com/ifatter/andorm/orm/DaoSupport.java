@@ -16,73 +16,41 @@
 
 package com.ifatter.andorm.orm;
 
-import com.ifatter.andorm.orm.annotation.Database;
-import com.ifatter.andorm.orm.annotation.Model;
 import java.io.File;
 import java.lang.reflect.Method;
 
-public abstract class DaoSupport {
+public class DaoSupport {
 
-    private Template mTemplate;
+	private Template mTemplate;
 
-    private DatabaseCache mDBCache;
+	Object transaction(Method method, Object... args) throws Throwable {
+		return getTemplate().transaction(this, method, args);
+	}
 
-    public DaoSupport() {
-        boolean init = false;
-        Class<?>[] classes = getClass().getInterfaces();
-        if (classes != null) {
-            for (Class<?> clazz : classes) {
-                if (clazz.isAnnotationPresent(Database.class)) {
-                    Database db = clazz.getAnnotation(Database.class);
-                    initDB(db.dbCfgPath());
-                    init = true;
-                    break;
-                }
-            }
-        }
-        if (!init) {
-            initDB(null);
-        }
-    }
+	protected final synchronized Template getTemplate() {
+		if (mTemplate == null) {
 
-    private void initDB(String cfgPath) {
-        DBConfig support = DBConfig.get(cfgPath);
-        String dirPath = support.getPath();
-        File dir = new File(dirPath);
-        if (!dir.exists()) {
-            boolean b = dir.mkdirs();
-            if (!b) {
-                throw new AndormException(dirPath + " can't be created");
-            }
-        }
-        String fileName = support.getName();
-        String path = dir.getAbsolutePath() + '/' + fileName;
-        mDBCache = new DatabaseCache(path);
-    }
+			DBConfig support = DBConfig.get();
+			String dirPath = support.getPath();
+			File dir = new File(dirPath);
+			if (!dir.exists()) {
+				boolean b = dir.mkdirs();
+				if (!b) {
+					throw new AndormException(dirPath + " can't be created");
+				}
+			}
+			String fileName = support.getName();
+			String path = dir.getAbsolutePath() + '/' + fileName;
+			DatabaseCache mDBCache = new DatabaseCache(path);
 
-    Object transaction(Method method, Object... args) throws Throwable {
-        return getTemplate().transaction(this, method, args);
-    }
+			@SuppressWarnings("unchecked")
+			Class<Model> clazz = (Class<Model>) getClass();
+			mTemplate = new Template(mDBCache.openDatabase(), clazz);
+			if (mTemplate == null) {
+				throw new RuntimeException(getClass() + " need extends Model");
+			}
 
-    protected final synchronized Template getTemplate() {
-        if (mTemplate == null) {
-            boolean b = false;
-            Class<?>[] interfaces = getClass().getInterfaces();
-            if (interfaces != null) {
-                for (Class<?> clazz : interfaces) {
-                    if (clazz.isAnnotationPresent(Model.class)) {
-                        Model model = clazz.getAnnotation(Model.class);
-                        Class<?> cla = (Class<?>)model.model();
-                        mTemplate = new Template(mDBCache.openDatabase(), cla);
-                        b = true;
-                        break;
-                    }
-                }
-            }
-            if (!b) {
-                throw new IllegalArgumentException(getClass() + " need @Model");
-            }
-        }
-        return mTemplate;
-    }
+		}
+		return mTemplate;
+	}
 }

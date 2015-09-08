@@ -1,37 +1,28 @@
-
 package com.ifatter.andorm;
 
 import android.app.Activity;
 import android.os.Bundle;
-import com.ifatter.andorm.dao.BookDao;
-import com.ifatter.andorm.dao.impl.BookDaoImpl;
+import android.widget.Toast;
+
+import com.ifatter.Andorm;
 import com.ifatter.andorm.model.Book;
-import com.ifatter.andorm.orm.DaoFactory;
 
 public class AndormExampleActivity extends Activity {
 
-    BookDao bookDao = null;
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
 
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+		Andorm.initialize(this.getApplicationContext());
 
-        bookDao = DaoFactory.createDao(BookDaoImpl.class);
-
-        Book book = new Book();
-        book.setTitle("111");
-        book.setUrl("http:///andorm/");
-        book.setIconUrl("http:///andorm/icon.png");
-        bookDao.insert(book);
-
-        book = new Book();
-        book.setTitle("444");
-        book.setUrl("http://www");
-        book.setIconUrl("http://www");
-        bookDao.insert(book);
-
-    }
+		Book book = new Book();
+		book.setTitle("111");
+		book.setUrl("http:///andorm/");
+		book.setIconUrl("http:///andorm/icon.png");
+		long i = book.insert();
+		Toast.makeText(this, "" + i, Toast.LENGTH_LONG).show();
+	}
 
 }
