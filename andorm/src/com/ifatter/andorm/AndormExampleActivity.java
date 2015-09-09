@@ -15,14 +15,16 @@ public class AndormExampleActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		Andorm.initialize(this.getApplicationContext());
+		Andorm.initialize(getApplicationContext());
 
 		Book book = new Book();
-		book.setTitle("111");
-		book.setUrl("http:///andorm/");
-		book.setIconUrl("http:///andorm/icon.png");
+		book.title = "111";
+		book.url = "http:///andorm/";
+		book.iconUrl = "http:///andorm/icon.png";
 		long i = book.insert();
+		
 		Toast.makeText(this, "" + i, Toast.LENGTH_LONG).show();
+		
 	}
 
 }

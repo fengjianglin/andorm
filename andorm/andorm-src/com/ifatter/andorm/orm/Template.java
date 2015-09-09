@@ -36,7 +36,7 @@ public class Template implements Operations {
 
 	private final SQLiteDatabase mDatabase;
 
-	private final Class<Model> mClazz;
+	private final Class<? extends Model> mClazz;
 
 	private Field[] mFields;
 
@@ -44,7 +44,7 @@ public class Template implements Operations {
 
 	private String mIdColumn;
 
-	protected Template(SQLiteDatabase db, Class<Model> clazz) {
+	protected Template(SQLiteDatabase db, Class<? extends Model> clazz) {
 
 		this.mDatabase = db;
 		this.mClazz = clazz;
@@ -255,6 +255,19 @@ public class Template implements Operations {
 			} else {
 				return update(entity);
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+		}
+		return 0;
+	}
+
+	public int delete(Model entity) {
+		try {
+			Field field = mClazz.getField(mIdColumn);
+			String fieldValue = field.get(entity).toString();
+			int idValue = Integer.parseInt(fieldValue);
+			return delete(idValue);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

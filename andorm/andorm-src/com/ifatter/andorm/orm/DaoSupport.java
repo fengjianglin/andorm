@@ -18,8 +18,14 @@ package com.ifatter.andorm.orm;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 public class DaoSupport {
+
+	private static final Map<Class<? extends Model>, Template> templates = Collections
+			.synchronizedMap(new WeakHashMap<Class<? extends Model>, Template>());
 
 	private Template mTemplate;
 
@@ -29,28 +35,44 @@ public class DaoSupport {
 
 	protected final synchronized Template getTemplate() {
 		if (mTemplate == null) {
-
-			DBConfig support = DBConfig.get();
-			String dirPath = support.getPath();
-			File dir = new File(dirPath);
-			if (!dir.exists()) {
-				boolean b = dir.mkdirs();
-				if (!b) {
-					throw new AndormException(dirPath + " can't be created");
-				}
+			DatabaseCache mDBCache = getDatabaseCache();
+			Class<? extends Model> clazz = null; //= getClass();
+			mTemplate = templates.get(clazz);
+			if (mTemplate == null) {
+				mTemplate = new Template(mDBCache.openDatabase(), clazz);
+				templates.put(clazz, mTemplate);
 			}
-			String fileName = support.getName();
-			String path = dir.getAbsolutePath() + '/' + fileName;
-			DatabaseCache mDBCache = new DatabaseCache(path);
 
-			@SuppressWarnings("unchecked")
-			Class<Model> clazz = (Class<Model>) getClass();
-			mTemplate = new Template(mDBCache.openDatabase(), clazz);
 			if (mTemplate == null) {
 				throw new RuntimeException(getClass() + " need extends Model");
 			}
-
 		}
 		return mTemplate;
+	}
+
+	protected final synchronized static Template getTemplate(
+			Class<? extends Model> clazz) {
+		Template template = templates.get(clazz);
+		if (template == null) {
+			DatabaseCache mDBCache = getDatabaseCache();
+			template = new Template(mDBCache.openDatabase(), clazz);
+			templates.put(clazz, template);
+		}
+		return template;
+	}
+
+	private static DatabaseCache getDatabaseCache() {
+		DBConfig support = DBConfig.get();
+		String dirPath = support.getPath();
+		File dir = new File(dirPath);
+		if (!dir.exists()) {
+			boolean b = dir.mkdirs();
+			if (!b) {
+				throw new AndormException(dirPath + " can't be created");
+			}
+		}
+		String fileName = support.getName();
+		String path = dir.getAbsolutePath() + '/' + fileName;
+		return new DatabaseCache(path);
 	}
 }

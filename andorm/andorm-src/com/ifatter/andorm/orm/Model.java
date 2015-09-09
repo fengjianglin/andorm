@@ -1,12 +1,21 @@
 package com.ifatter.andorm.orm;
 
-public class Model extends DaoSupport {
+public class Model {
 
 	public long insert() {
-		return getTemplate().insert(this);
+		return DaoSupport.getTemplate(getClass()).insert(this);
+	}
+
+	public int update() {
+		return DaoSupport.getTemplate(getClass()).update(this);
 	}
 
 	public int save() {
-		return 0;
+		return DaoSupport.getTemplate(getClass()).save(this);
 	}
+
+	public int delete() {
+		return DaoSupport.getTemplate(getClass()).delete(this);
+	}
+
 }

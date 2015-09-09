@@ -36,6 +36,8 @@ interface Operations {
 
 	public int save(Model entity);
 
+	public int delete(Model id);
+	
 	public int delete(int id);
 
 	public void delete(Integer... ids);
