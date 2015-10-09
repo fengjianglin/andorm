@@ -1,21 +1,27 @@
 package com.ifatter.andorm.orm;
 
+import java.util.List;
+
 public class Model {
 
 	public long insert() {
-		return DaoSupport.getTemplate(getClass()).insert(this);
+		return Dao.getTemplate(getClass()).insert(this);
 	}
 
 	public int update() {
-		return DaoSupport.getTemplate(getClass()).update(this);
+		return Dao.getTemplate(getClass()).update(this);
 	}
 
 	public int save() {
-		return DaoSupport.getTemplate(getClass()).save(this);
+		return Dao.getTemplate(getClass()).save(this);
 	}
 
 	public int delete() {
-		return DaoSupport.getTemplate(getClass()).delete(this);
+		return Dao.getTemplate(getClass()).delete(this);
+	}
+
+	public static List<Model> findAll() {
+		return null;
 	}
 
 }

@@ -4,7 +4,6 @@ import com.ifatter.andorm.orm.Model;
 import com.ifatter.andorm.orm.annotation.Column;
 import com.ifatter.andorm.orm.annotation.Id;
 import com.ifatter.andorm.orm.annotation.Table;
-import com.ifatter.andorm.orm.annotation.Transaction;
 
 @Table(name = "table_book")
 public class Book extends Model {
@@ -21,10 +20,11 @@ public class Book extends Model {
 
 	@Column(name = "icon_url", length = 64)
 	public String iconUrl;
-
-	@Transaction
-	public static void testTransaction() {
-
+	
+	
+	public void test(){
+		System.out.println("----------Book");
 	}
+
 
 }
