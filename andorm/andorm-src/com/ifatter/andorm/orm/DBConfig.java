@@ -16,18 +16,11 @@
 
 package com.ifatter.andorm.orm;
 
-import android.text.TextUtils;
-
-import com.ifatter.util.LocalResourceBundle;
-import com.ifatter.util.ManifestParser;
+import com.ifatter.Andorm;
 
 public class DBConfig {
 
-	public static final String PACKAGE_NAME = new ManifestParser().parser()
-			.getPackageName();
-
-	public static final String DEFAULT_PATH = "/data/data/" + PACKAGE_NAME
-			+ "/andorm/";
+	public static final String DEFAULT_PATH = Andorm.getAppPath() + "/andorm/";
 
 	public static final String DEFAULT_NAME = "andorm_default.db";
 
@@ -47,25 +40,8 @@ public class DBConfig {
 		return name;
 	}
 
-	/**
-	 * cfgPath = "com/ifatter/andorm/database/config";
-	 */
-	public static DBConfig get(String cfgPath) {
-		String path, name;
-		LocalResourceBundle bundle;
-		if (TextUtils.isEmpty(cfgPath)
-				|| (bundle = LocalResourceBundle.getBundle(cfgPath)) == null) {
-			path = DEFAULT_PATH;
-			name = DEFAULT_NAME;
-		} else {
-			if (TextUtils.isEmpty((path = bundle.getString("db.path")))) {
-				path = DEFAULT_PATH;
-			}
-			if (TextUtils.isEmpty((name = bundle.getString("db.name")))) {
-				name = DEFAULT_NAME;
-			}
-		}
-		return new DBConfig(path, name);
+	public static DBConfig get() {
+		return new DBConfig(DEFAULT_PATH, DEFAULT_NAME);
 	}
 
 }
