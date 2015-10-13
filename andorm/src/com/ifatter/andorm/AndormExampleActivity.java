@@ -1,20 +1,14 @@
 package com.ifatter.andorm;
 
-import java.io.FileOutputStream;
-
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
+import javassist.android.DexFile;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
 import android.widget.Toast;
 
-import com.android.dx.dex.DexOptions;
-import com.android.dx.dex.cf.CfOptions;
-import com.android.dx.dex.cf.CfTranslator;
-import com.android.dx.dex.file.ClassDefItem;
-import com.android.dx.dex.file.DexFile;
 import com.ifatter.Andorm;
 
 import dalvik.system.DexClassLoader;
@@ -44,31 +38,28 @@ public class AndormExampleActivity extends Activity {
 		final ClassPool cp = ClassPool.getDefault(getApplicationContext());
 		CtClass clsb = null;
 		try {
-			clsb = cp.makeClass("Tea");
-			CtMethod method = new CtMethod(CtClass.voidType, "run", null, clsb);
+			String className = "com.ifatter.andorm.orm.Model.Book";
+			clsb = cp.makeClass(className);
+			// clsb.setSuperclass(cp.get(Book.class.getName()));
+			CtMethod method = new CtMethod(CtClass.voidType, "test", null, clsb);
 			method.setBody("{System.out.println(\"调用了方法：run！！\" );}  ");
 			clsb.addMethod(method);
 
-			DexOptions dexOptions = new DexOptions();
-			DexFile dexFile = new DexFile(dexOptions);
-
-			ClassDefItem classDefItem = CfTranslator.translate("Tea.class",
-					clsb.toBytecode(), new CfOptions(), dexOptions);
-			dexFile.add(classDefItem);
-			dexFile.writeTo(new FileOutputStream(Environment
-					.getExternalStorageDirectory().getAbsolutePath()
-					+ "/1/classes.dex"), null, false);
+			DexFile dexFile = new DexFile();
+			dexFile.addClass(className, clsb.toBytecode());
+			dexFile.writeFile(Environment.getExternalStorageDirectory()
+					.getAbsolutePath() + "/1/classes.dex");
 
 			DexClassLoader dexClassLoader = new DexClassLoader(Environment
 					.getExternalStorageDirectory().getAbsolutePath()
-					+ "/1/classes.dex", getDir("osdk", 0).getAbsolutePath(),
+					+ "/1/classes.dex", getDir("odex", 0).getAbsolutePath(),
 					null, getClassLoader());
 
-			Class<?> teaClass = dexClassLoader.loadClass("Tea");
+			Class<?> teaClass = dexClassLoader.loadClass(className);
 			Object o = teaClass.newInstance();
 			Toast.makeText(this, o.toString(), Toast.LENGTH_LONG).show();
 
-			teaClass.getDeclaredMethod("run").invoke(o);
+			// o.test();
 
 		} catch (Exception e) {
 			e.printStackTrace();

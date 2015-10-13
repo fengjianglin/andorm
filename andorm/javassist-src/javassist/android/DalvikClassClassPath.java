@@ -10,9 +10,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import dalvik.system.DexFile;
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import javassist.NotFoundException;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
@@ -21,36 +18,34 @@ import javassist.bytecode.DuplicateMemberException;
 import javassist.bytecode.ExceptionsAttribute;
 import javassist.bytecode.FieldInfo;
 import javassist.bytecode.MethodInfo;
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
 
 public class DalvikClassClassPath implements DalvikClassPath {
 	private final Class<?> clazz;
 	private final JarFile apk;
-	private final DexFile dex;
-	
+
 	private DalvikClassClassPath(Class<?> c, Context ctx) {
 		clazz = c;
 		JarFile jarFile = null;
-		DexFile dexFile = null;;
 		try {
 			final ApplicationInfo ai = ctx.getApplicationInfo();
 			jarFile = new JarFile(ctx, ai.sourceDir);
-			dexFile = new DexFile(ai.sourceDir);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		apk = jarFile;
-		dex = dexFile;
 	}
-	
+
 	public DalvikClassClassPath(Context context) {
 		this(java.lang.Object.class, context);
 	}
-	
+
 	@Override
 	public InputStream openClassfile(String classname) throws NotFoundException {
 		throw new NotFoundException("class file is not found.");
 	}
-	
+
 	@Override
 	public ClassFile getClassFile(String classname) throws NotFoundException {
 		Class<?> clazz = null;
@@ -59,14 +54,15 @@ public class DalvikClassClassPath implements DalvikClassPath {
 		} catch (ClassNotFoundException e) {
 			throw new NotFoundException(e.getMessage(), e);
 		}
-		
+
 		final Class<?> superClass = clazz.getSuperclass();
-		final ClassFile cf = new ClassFile(clazz.isInterface(), classname, null == superClass ? null : superClass.getName());
-		
+		final ClassFile cf = new ClassFile(clazz.isInterface(), classname,
+				null == superClass ? null : superClass.getName());
+
 		addFields(cf, clazz);
 		addConstructors(cf, clazz);
 		addMethods(cf, clazz);
-		
+
 		return cf;
 	}
 
@@ -75,11 +71,12 @@ public class DalvikClassClassPath implements DalvikClassPath {
 		if (null == apk) {
 			return null;
 		}
-		
+
 		try {
 			final Class<?> cls = apk.getClass(classname);
 			final URL url = null == cls ? null : new URL("file", "", classname);
-			Log.d("%s.find(%s) = %s", getClass().getSimpleName(), classname, url);
+			Log.d("%s.find(%s) = %s", getClass().getSimpleName(), classname,
+					url);
 			return url;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -102,7 +99,8 @@ public class DalvikClassClassPath implements DalvikClassPath {
 		}
 		final ArrayList<FieldInfo> ret = new ArrayList<FieldInfo>();
 		for (Field f : fields) {
-			final FieldInfo fi = new FieldInfo(cp, f.getName(), Descriptor.of(f.getClass()));
+			final FieldInfo fi = new FieldInfo(cp, f.getName(), Descriptor.of(f
+					.getClass()));
 			ret.add(fi);
 			fi.setAccessFlags(f.getModifiers());
 		}
@@ -116,27 +114,31 @@ public class DalvikClassClassPath implements DalvikClassPath {
 		final ArrayList<MethodInfo> ret = new ArrayList<MethodInfo>();
 		if (null != methods && 0 != methods.length) {
 			for (Method m : methods) {
-				final MethodInfo mi = new MethodInfo(cp, m.getName(), Descriptor.ofMethod(m.getReturnType(), m.getParameterTypes()));
+				final MethodInfo mi = new MethodInfo(cp, m.getName(),
+						Descriptor.ofMethod(m.getReturnType(),
+								m.getParameterTypes()));
 				ret.add(mi);
 				buildMethodInfo(cp, mi, m);
 			}
 		}
 		if (null != ctors && 0 != ctors.length) {
 			for (Constructor<?> c : ctors) {
-				final MethodInfo mi = new MethodInfo(cp, "<init>", Descriptor.ofConstructor(c.getParameterTypes()));
+				final MethodInfo mi = new MethodInfo(cp, "<init>",
+						Descriptor.ofConstructor(c.getParameterTypes()));
 				ret.add(mi);
 				buildMethodInfo(cp, mi, c);
 			}
 		}
 		return 0 == ret.size() ? null : ret;
 	}
-	
+
 	private void addFields(ClassFile cfile, Class<?> clazz) {
 		final Field[] fields = clazz.getDeclaredFields();
 		if (null != fields && 0 < fields.length) {
 			for (Field f : fields) {
 				try {
-					final FieldInfo fi = new FieldInfo(cfile.getConstPool(), f.getName(), Descriptor.of(f.getType()));
+					final FieldInfo fi = new FieldInfo(cfile.getConstPool(),
+							f.getName(), Descriptor.of(f.getType()));
 					fi.setAccessFlags(f.getModifiers());
 					cfile.addField(fi);
 				} catch (DuplicateMemberException e) {
@@ -145,12 +147,14 @@ public class DalvikClassClassPath implements DalvikClassPath {
 			}
 		}
 	}
-	
+
 	private void addConstructors(ClassFile cfile, Class<?> clazz) {
 		final Constructor<?>[] ctors = clazz.getDeclaredConstructors();
 		if (null != ctors && 0 < ctors.length) {
 			for (Constructor<?> c : ctors) {
-				final MethodInfo mi = new MethodInfo(cfile.getConstPool(), "<init>", Descriptor.ofConstructor(c.getParameterTypes()));
+				final MethodInfo mi = new MethodInfo(cfile.getConstPool(),
+						"<init>", Descriptor.ofConstructor(c
+								.getParameterTypes()));
 				buildMethodInfo(cfile.getConstPool(), mi, c);
 				try {
 					cfile.addMethod(mi);
@@ -160,12 +164,14 @@ public class DalvikClassClassPath implements DalvikClassPath {
 			}
 		}
 	}
-	
+
 	private void addMethods(ClassFile cfile, Class<?> clazz) {
 		final Method[] methods = clazz.getDeclaredMethods();
 		if (null != methods && 0 < methods.length) {
 			for (Method m : methods) {
-				final MethodInfo mi = new MethodInfo(cfile.getConstPool(), m.getName(), Descriptor.ofMethod(m.getReturnType(), m.getParameterTypes()));
+				final MethodInfo mi = new MethodInfo(cfile.getConstPool(),
+						m.getName(), Descriptor.ofMethod(m.getReturnType(),
+								m.getParameterTypes()));
 				buildMethodInfo(cfile.getConstPool(), mi, m);
 				try {
 					cfile.addMethod(mi);
@@ -175,7 +181,7 @@ public class DalvikClassClassPath implements DalvikClassPath {
 			}
 		}
 	}
-	
+
 	private void buildMethodInfo(ConstPool cp, MethodInfo mi, Method m) {
 		mi.setAccessFlags(m.getModifiers());
 		final Class<?>[] excs = m.getExceptionTypes();
@@ -185,8 +191,9 @@ public class DalvikClassClassPath implements DalvikClassPath {
 			mi.setExceptionsAttribute(ea);
 		}
 	}
-	
-	private void buildMethodInfo(ConstPool cp, MethodInfo mi, Constructor<?> ctor) {
+
+	private void buildMethodInfo(ConstPool cp, MethodInfo mi,
+			Constructor<?> ctor) {
 		mi.setAccessFlags(ctor.getModifiers());
 		final Class<?>[] excs = ctor.getExceptionTypes();
 		if (null != excs && 0 != excs.length) {
@@ -195,12 +202,13 @@ public class DalvikClassClassPath implements DalvikClassPath {
 			mi.setExceptionsAttribute(ea);
 		}
 	}
-	
-	private void buildExceptionsAttribute(ExceptionsAttribute ea, Class<?>[] exceptions) {
+
+	private void buildExceptionsAttribute(ExceptionsAttribute ea,
+			Class<?>[] exceptions) {
 		if (null == exceptions || 0 == exceptions.length) {
 			return;
 		}
-		
+
 		final String[] list = new String[exceptions.length];
 		for (int i = 0; i < list.length; ++i) {
 			list[i] = exceptions[i].getName();
