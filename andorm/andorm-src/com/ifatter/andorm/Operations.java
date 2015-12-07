@@ -24,20 +24,20 @@ import java.util.Map;
  * 
  * @author ifatter
  */
-interface Operations {
+interface Operations<T extends Model> {
 
 	public boolean isExist(String sql, String[] selectionArgs);
 
-	public Model find(int id);
+	public T find(int id);
 
-	public long insert(Model entity);
+	public long insert(T entity);
 
-	public int update(Model entity);
+	public int update(T entity);
 
-	public int save(Model entity);
+	public int save(T entity);
 
-	public int delete(Model id);
-	
+	public int delete(T id);
+
 	public int delete(int id);
 
 	public void delete(Integer... ids);
@@ -46,13 +46,13 @@ interface Operations {
 
 	public int deleteAll();
 
-	public List<Model> rawQuery(String sql, String[] selectionArgs);
+	public List<T> rawQuery(String sql, String[] selectionArgs);
 
-	public List<Model> findAll();
+	public List<T> findAll();
 
-	public List<Model> find(String selection, String[] selectionArgs);
+	public List<T> find(String selection, String[] selectionArgs);
 
-	public List<Model> find(String[] columns, String selection,
+	public List<T> find(String[] columns, String selection,
 			String[] selectionArgs, String groupBy, String having,
 			String orderBy, String limit);
 

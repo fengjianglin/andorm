@@ -1,21 +1,20 @@
 package com.ifatter.andorm;
 
-
 public class Model {
 
 	public long insert() {
-		return Dao.getTemplate(getClass()).insert(this);
+		return Insert.into(getClass()).values(this);
 	}
 
 	public int update() {
-		return Dao.getTemplate(getClass()).update(this);
+		return Update.from(getClass()).set(this);
 	}
 
 	public int save() {
-		return Dao.getTemplate(getClass()).save(this);
+		return Save.from(getClass()).save(this);
 	}
 
 	public int delete() {
-		return Dao.getTemplate(getClass()).delete(this);
+		return Delete.from(getClass()).delete(this);
 	}
 }

@@ -16,14 +16,6 @@
 
 package com.ifatter.andorm;
 
-import com.ifatter.andorm.annotation.Id;
-import com.ifatter.andorm.annotation.Table;
-import com.ifatter.andorm.annotation.Column;
-
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.Blob;
@@ -32,7 +24,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Template implements Operations {
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.ifatter.andorm.annotation.Column;
+import com.ifatter.andorm.annotation.Id;
+import com.ifatter.andorm.annotation.Table;
+
+public class OperationsImpl<T extends Model> implements Operations<T> {
 
 	private final SQLiteDatabase mDatabase;
 
@@ -44,7 +44,7 @@ public class Template implements Operations {
 
 	private String mIdColumn;
 
-	protected Template(SQLiteDatabase db, Class<? extends Model> clazz) {
+	protected OperationsImpl(SQLiteDatabase db, Class<? extends Model> clazz) {
 
 		this.mDatabase = db;
 		this.mClazz = clazz;
@@ -198,11 +198,11 @@ public class Template implements Operations {
 		return false;
 	}
 
-	public Model find(int id) {
+	public T find(int id) {
 		String selection = this.mIdColumn + " = ?";
 		String[] selectionArgs = { Integer.toString(id) };
-		List<Model> list = find(null, selection, selectionArgs, null, null,
-				null, null);
+		List<T> list = find(null, selection, selectionArgs, null, null, null,
+				null);
 		if ((list != null) && (list.size() > 0)) {
 			return list.get(0);
 		}
@@ -306,9 +306,9 @@ public class Template implements Operations {
 		return this.mDatabase.delete(mTableName, "1", null);
 	}
 
-	public List<Model> rawQuery(String sql, String[] selectionArgs) {
+	public List<T> rawQuery(String sql, String[] selectionArgs) {
 
-		List<Model> list = new ArrayList<Model>();
+		List<T> list = new ArrayList<T>();
 		Cursor cursor = null;
 		try {
 			cursor = mDatabase.rawQuery(sql, selectionArgs);
@@ -324,20 +324,20 @@ public class Template implements Operations {
 		return list;
 	}
 
-	public List<Model> findAll() {
+	public List<T> findAll() {
 		return find(null, null, null, null, null, null, null);
 	}
 
 	@Override
-	public List<Model> find(String selection, String[] selectionArgs) {
+	public List<T> find(String selection, String[] selectionArgs) {
 		return find(null, selection, selectionArgs, null, null, null, null);
 	}
 
-	public List<Model> find(String[] columns, String selection,
+	public List<T> find(String[] columns, String selection,
 			String[] selectionArgs, String groupBy, String having,
 			String orderBy, String limit) {
 
-		List<Model> list = new ArrayList<Model>();
+		List<T> list = new ArrayList<T>();
 		Cursor cursor = null;
 		try {
 			cursor = mDatabase.query(this.mTableName, columns, selection,
@@ -390,7 +390,7 @@ public class Template implements Operations {
 		}
 	}
 
-	private <T> void getListFromCursor(List<T> list, Cursor cursor)
+	private void getListFromCursor(List<T> list, Cursor cursor)
 			throws IllegalAccessException, InstantiationException {
 		while (cursor.moveToNext()) {
 			@SuppressWarnings("unchecked")
@@ -441,7 +441,7 @@ public class Template implements Operations {
 		}
 	}
 
-	private <T> void setContentValues(T entity, ContentValues cv, String type)
+	private void setContentValues(Model entity, ContentValues cv, String type)
 			throws IllegalAccessException {
 
 		for (Field field : this.mFields) {
