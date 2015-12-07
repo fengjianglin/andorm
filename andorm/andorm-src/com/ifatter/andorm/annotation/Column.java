@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ifatter.andorm.orm.annotation;
+package com.ifatter.andorm.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -24,5 +24,10 @@ import java.lang.annotation.Target;
 @Target({
     java.lang.annotation.ElementType.FIELD
 })
-public @interface Id {
+public @interface Column {
+    public String name();
+
+    public String type() default "";
+
+    public int length() default 0;
 }

@@ -1,5 +1,5 @@
 
-package com.ifatter.andorm.orm;
+package com.ifatter.andorm;
 
 import android.database.sqlite.SQLiteDatabase;
 

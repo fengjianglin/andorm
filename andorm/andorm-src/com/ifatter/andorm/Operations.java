@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ifatter.andorm.orm;
+package com.ifatter.andorm;
 
 import java.util.List;
 import java.util.Map;

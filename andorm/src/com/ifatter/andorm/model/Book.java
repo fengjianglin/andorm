@@ -1,9 +1,9 @@
 package com.ifatter.andorm.model;
 
-import com.ifatter.andorm.orm.Model;
-import com.ifatter.andorm.orm.annotation.Column;
-import com.ifatter.andorm.orm.annotation.Id;
-import com.ifatter.andorm.orm.annotation.Table;
+import com.ifatter.andorm.annotation.Id;
+import com.ifatter.andorm.annotation.Table;
+import com.ifatter.andorm.Model;
+import com.ifatter.andorm.annotation.Column;
 
 @Table(name = "table_book")
 public class Book extends Model {

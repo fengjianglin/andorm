@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.ifatter.andorm.orm;
+package com.ifatter.andorm;
 
-import com.ifatter.andorm.orm.annotation.Column;
-import com.ifatter.andorm.orm.annotation.Id;
-import com.ifatter.andorm.orm.annotation.Table;
+import com.ifatter.andorm.annotation.Id;
+import com.ifatter.andorm.annotation.Table;
+import com.ifatter.andorm.annotation.Column;
 
 import android.content.ContentValues;
 import android.database.Cursor;

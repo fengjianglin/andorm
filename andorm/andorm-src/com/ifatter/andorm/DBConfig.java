@@ -14,16 +14,34 @@
  * limitations under the License.
  */
 
-package com.ifatter.andorm.orm.annotation;
+package com.ifatter.andorm;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.ifatter.Andorm;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target({
-    java.lang.annotation.ElementType.TYPE
-})
-public @interface Table {
-    public String name();
+public class DBConfig {
+
+	public static final String DEFAULT_PATH = Andorm.getAppPath() + "/andorm/";
+
+	public static final String DEFAULT_NAME = "andorm_default.db";
+
+	private String path;
+	private String name;
+
+	private DBConfig(String path, String name) {
+		this.path = path;
+		this.name = name;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public static DBConfig get() {
+		return new DBConfig(DEFAULT_PATH, DEFAULT_NAME);
+	}
+
 }
