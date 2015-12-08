@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package com.ifatter.andorm;
+package com.ifatter.andorm.query;
 
 import java.io.File;
 
-public class Query {
+import com.ifatter.andorm.AndormException;
+import com.ifatter.andorm.DBConfig;
+import com.ifatter.andorm.DatabaseCache;
+import com.ifatter.andorm.Model;
+
+public abstract class Query {
 
 	protected final synchronized static <T extends Model> OperationsImpl<T> operate(
 			Class<T> clazz) {

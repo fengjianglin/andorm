@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package com.ifatter.andorm;
+package com.ifatter.andorm.query;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
+
+import com.ifatter.andorm.AndormException;
+import com.ifatter.andorm.Model;
 
 public class Save extends Query {
 

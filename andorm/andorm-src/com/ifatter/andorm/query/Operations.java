@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package com.ifatter.andorm;
+package com.ifatter.andorm.query;
 
 import java.util.List;
 import java.util.Map;
+
+import com.ifatter.andorm.Model;
 
 /**
  * 定义原子操作
  * 
  * @author ifatter
  */
-interface Operations<T extends Model> {
+public interface Operations<T extends Model> {
 
 	public boolean isExist(String sql, String[] selectionArgs);
 

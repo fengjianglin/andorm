@@ -1,5 +1,10 @@
 package com.ifatter.andorm;
 
+import com.ifatter.andorm.query.Delete;
+import com.ifatter.andorm.query.Insert;
+import com.ifatter.andorm.query.Save;
+import com.ifatter.andorm.query.Update;
+
 public class Model {
 
 	public long insert() {

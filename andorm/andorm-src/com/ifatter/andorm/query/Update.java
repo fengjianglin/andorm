@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package com.ifatter.andorm;
+package com.ifatter.andorm.query;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public class Insert extends Query {
+import com.ifatter.andorm.AndormException;
+import com.ifatter.andorm.Model;
+
+public class Update extends Query {
 
 	private static final Map<Class<?>, Operations<?>> operationsMap = Collections
 			.synchronizedMap(new WeakHashMap<Class<?>, Operations<?>>());
 
-	public final synchronized static <T extends Model> Operations<T> into(
+	public final synchronized static <T extends Model> Operations<T> from(
 			Class<T> clazz) {
 		@SuppressWarnings("unchecked")
 		Operations<T> op = (Operations<T>) operationsMap.get(clazz);
@@ -48,10 +51,9 @@ public class Insert extends Query {
 			this.op = op;
 		}
 
-		public long values(Model entity) {
-			return op.insert(entity);
+		public int set(Model entity) {
+			return op.update(entity);
 		}
-
 	}
 
 }

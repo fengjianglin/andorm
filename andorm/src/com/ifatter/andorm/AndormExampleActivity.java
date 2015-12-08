@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import com.ifatter.Andorm;
 import com.ifatter.andorm.model.Book;
+import com.ifatter.andorm.query.Select;
 
 public class AndormExampleActivity extends Activity {
 

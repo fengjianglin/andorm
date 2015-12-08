@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package com.ifatter.andorm;
+package com.ifatter.andorm.query;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public class Update extends Query {
+import com.ifatter.andorm.AndormException;
+import com.ifatter.andorm.Model;
+
+public class Select extends Query {
 
 	private static final Map<Class<?>, Operations<?>> operationsMap = Collections
 			.synchronizedMap(new WeakHashMap<Class<?>, Operations<?>>());
@@ -48,8 +52,23 @@ public class Update extends Query {
 			this.op = op;
 		}
 
-		public int set(Model entity) {
-			return op.update(entity);
+		public List<K> findAll() {
+			return op.findAll();
+		}
+
+		public K find(int id) {
+			return op.find(id);
+		}
+
+		public List<K> find(String selection, String[] selectionArgs) {
+			return op.find(selection, selectionArgs);
+		}
+
+		public List<K> find(String[] columns, String selection,
+				String[] selectionArgs, String groupBy, String having,
+				String orderBy, String limit) {
+			return op.find(columns, selection, selectionArgs, groupBy, having,
+					orderBy, limit);
 		}
 	}
 

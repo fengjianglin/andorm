@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ifatter.andorm;
+package com.ifatter.andorm.query;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -28,6 +28,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.ifatter.andorm.Model;
 import com.ifatter.andorm.annotation.Column;
 import com.ifatter.andorm.annotation.Id;
 import com.ifatter.andorm.annotation.Table;
