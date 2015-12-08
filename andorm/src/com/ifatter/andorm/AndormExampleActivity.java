@@ -27,7 +27,6 @@ public class AndormExampleActivity extends Activity {
 		book.insert();
 
 		List<Book> books = Select.from(Book.class).findAll();
-
 		Toast.makeText(this, books.get(0).title, Toast.LENGTH_LONG).show();
 	}
 
